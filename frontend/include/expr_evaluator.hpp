@@ -13,7 +13,7 @@ class Expression_evaluator final : public ASTVisitor {
   public:
     Expression_evaluator(Simulator &simulator) : simulator_{simulator} {};
 
-    number_t get_result() const;
+    number_t get_result() const noexcept;
 
     void visit(Number &node) override;
 
