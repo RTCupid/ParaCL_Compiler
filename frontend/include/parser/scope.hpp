@@ -2,8 +2,8 @@
 #define FRONTEND_INCLUDE_SCOPE_HPP
 
 #include "config.hpp"
-#include <stdexcept>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -41,7 +41,7 @@ class Scope final {
         const std::string key(var_name);
 
         for (const auto &scope : scopes_ | std::views::reverse) {
-            if (const auto& f = scope.find(key); f != scope.end()) {
+            if (const auto &f = scope.find(key); f != scope.end()) {
                 return std::string_view(*f);
             }
         }
@@ -52,7 +52,8 @@ class Scope final {
 
     name_t_sv add_variable(name_t_sv var_name) {
         if (scopes_.empty()) {
-            throw std::underflow_error("add_variable() called with empty scope stack");
+            throw std::underflow_error(
+                "add_variable() called with empty scope stack");
         }
 
         if (auto existing = lookup(var_name); !existing.empty()) {
