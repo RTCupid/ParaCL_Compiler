@@ -2,8 +2,8 @@
 #define FRONTEND_INCLUDE_SCOPE_HPP
 
 #include "config.hpp"
-#include <cassert>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -19,7 +19,7 @@ class Scope final {
 
   public:
     Scope() {
-        push(nametable_t{}); // add global scope
+        push(); // add global scope
     }
 
     void push(nametable_t nametable = {}) {
@@ -27,7 +27,9 @@ class Scope final {
     }
 
     void pop() {
-        assert(!scopes_.empty());
+        if (scopes_.empty()) {
+            throw std::underflow_error("pop() called with empty scope stack");
+        }
         archived_.push_back(std::move(scopes_.back()));
         scopes_.pop_back();
     }
@@ -39,8 +41,7 @@ class Scope final {
         const std::string key(var_name);
 
         for (const auto &scope : scopes_ | std::views::reverse) {
-            auto f = scope.find(key);
-            if (f != scope.end()) {
+            if (const auto &f = scope.find(key); f != scope.end()) {
                 return std::string_view(*f);
             }
         }
@@ -50,19 +51,16 @@ class Scope final {
     bool find(name_t_sv var_name) const { return !lookup(var_name).empty(); }
 
     name_t_sv add_variable(name_t_sv var_name) {
-
         if (scopes_.empty()) {
-            throw std::runtime_error(
-                "add_variable called with empty scope stack");
+            throw std::underflow_error(
+                "add_variable() called with empty scope stack");
         }
 
-        auto existing = lookup(var_name);
-        if (!existing.empty()) {
+        if (auto existing = lookup(var_name); !existing.empty()) {
             return existing;
         }
 
         auto [it, inserted] = scopes_.back().emplace(std::string(var_name));
-        (void)inserted;
         return std::string_view(*it);
     }
 };

@@ -5,7 +5,7 @@
 
 namespace language {
 
-number_t Expression_evaluator::get_result() const { return result_; }
+number_t Expression_evaluator::get_result() const noexcept { return result_; }
 
 void Expression_evaluator::visit(Number &node) { result_ = node.get_value(); }
 
