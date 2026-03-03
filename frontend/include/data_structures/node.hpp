@@ -17,27 +17,9 @@ class Empty_stmt;
 class If_stmt;
 class While_stmt;
 class Print_stmt;
-class Unary;
 class Number;
 class Variable;
 class Input;
-class Program;
-class Statement;
-class Expression;
-class Assignment_stmt;
-class Assignment_expr;
-class Block_stmt;
-class Empty_stmt;
-class If_stmt;
-class While_stmt;
-class Print_stmt;
-class Unary;
-class Number;
-class Variable;
-class Input;
-class Binary_operator;
-class Unary_operator;
-
 class Binary_operator;
 class Unary_operator;
 
