@@ -10,10 +10,11 @@ number_t Expression_evaluator::get_result() const noexcept { return result_; }
 void Expression_evaluator::visit(Number &node) { result_ = node.get_value(); }
 
 void Expression_evaluator::visit(Variable &node) {
-    auto var_name = static_cast<std::string>(node.get_name());
+    auto &nametable = simulator_.get_nametable();
+    auto var_name = std::string{node.get_name()};
 
-    auto it = simulator_.nametable.find(var_name);
-    if (it != simulator_.nametable.end()) {
+    auto it = nametable.find(var_name);
+    if (it != nametable.end()) {
         result_ = it->second;
     } else {
         throw std::runtime_error("Unknown variable: " + var_name);
@@ -21,17 +22,18 @@ void Expression_evaluator::visit(Variable &node) {
 }
 
 void Expression_evaluator::visit(Assignment_expr &node) {
-    auto &&var_name = static_cast<std::string>(node.get_variable()->get_name());
+    auto &nametable = simulator_.get_nametable();
+    auto var_name = std::string{node.get_variable()->get_name()};
 
     Expression_evaluator result_eval{simulator_};
     node.get_value().accept(result_eval);
     result_ = result_eval.result_;
 
-    auto &&it = simulator_.nametable.find(var_name);
-    if (it != simulator_.nametable.end())
+    auto &&it = nametable.find(var_name);
+    if (it != nametable.end())
         it->second = result_;
     else
-        simulator_.nametable.emplace(var_name, result_);
+        nametable.emplace(var_name, result_);
 };
 
 void Expression_evaluator::visit(Binary_operator &node) {
