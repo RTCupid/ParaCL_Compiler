@@ -28,11 +28,11 @@ void Simulator::visit(Assignment_stmt &node) {
     auto var_name = static_cast<std::string>(node.get_variable()->get_name());
     const auto &value = evaluate_expression(node.get_value());
 
-    auto it = nametable.find(var_name);
-    if (it != nametable.end())
+    auto it = nametable_.find(var_name);
+    if (it != nametable_.end())
         it->second = value;
     else
-        nametable.emplace(var_name, value);
+        nametable_.emplace(var_name, value);
 }
 
 void Simulator::visit(If_stmt &node) {
