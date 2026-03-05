@@ -305,25 +305,21 @@ void Graph_dump::visit(Variable &node) {
 void Graph_dump::visit(Func &node) {
     auto *body = &node.get_body();
 
-    const auto name_opt = node.get_func_name(); 
-    const char* name_str = name_opt ? "named" : "anonymous";
+    const auto name_opt = node.get_func_name();
+    const char *name_str = name_opt ? "named" : "anonymous";
 
     gv_ << "    node_" << &node
         << "[shape=Mrecord; style=filled; fillcolor=khaki1"
-        << "; color=\"#000000\"; fontcolor=\"#000000\"; "
-        << "label=\"{ Func"
-        << " | addr: " << &node
-        << " | parent: " << parent_
-        << " | " << name_str;
+        << "; color=\"#000000\"; fontcolor=\"#000000\"; " << "label=\"{ Func"
+        << " | addr: " << &node << " | parent: " << parent_ << " | "
+        << name_str;
 
     if (name_opt) {
-        gv_ << " | name: " << *name_opt; 
+        gv_ << " | name: " << *name_opt;
     }
 
     gv_ << " | params_count: " << node.get_params().size()
-        << " | body: " << body
-        << " }\""
-        << "];\n";
+        << " | body: " << body << " }\"" << "];\n";
 
     emit_edge(&node, body);
     Graph_dump child{gv_, &node};
@@ -335,13 +331,9 @@ void Graph_dump::visit(Call &node) {
 
     gv_ << "    node_" << &node
         << "[shape=Mrecord; style=filled; fillcolor=lightskyblue1"
-        << "; color=\"#000000\"; fontcolor=\"#000000\"; "
-        << "label=\"{ Call"
-        << " | addr: " << &node
-        << " | parent: " << parent_
-        << " | target: " << t
-        << " | argc: " << node.get_args().size()
-        << " }\""
+        << "; color=\"#000000\"; fontcolor=\"#000000\"; " << "label=\"{ Call"
+        << " | addr: " << &node << " | parent: " << parent_
+        << " | target: " << t << " | argc: " << node.get_args().size() << " }\""
         << "];\n";
 
     emit_edge(&node, t);
@@ -351,7 +343,8 @@ void Graph_dump::visit(Call &node) {
     }
 
     for (auto *a : node.get_args()) {
-        if (!a) continue;
+        if (!a)
+            continue;
         emit_edge(&node, a);
         Graph_dump child{gv_, &node};
         a->accept(child);

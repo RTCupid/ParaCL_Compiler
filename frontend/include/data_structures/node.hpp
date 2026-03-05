@@ -3,8 +3,8 @@
 
 #include "config.hpp"
 #include <optional>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace language {
 
@@ -82,7 +82,6 @@ using Statement_ptr = Statement *;
 using StmtList = std::vector<Statement_ptr>;
 using Expression_ptr = Expression *;
 using Variable_ptr = Variable *;
-
 
 class Program : public Node {
   private:
@@ -203,26 +202,28 @@ class Print_stmt : public Statement {
 class Func : public Expression {
   public:
     using ParamList = std::vector<name_t_sv>;
-    
+
   private:
     std::optional<name_t_sv> func_name_;
     ParamList params_;
     Statement_ptr body_;
 
-  public: 
-    Func(std::optional<name_t_sv> func_name, ParamList params, Statement_ptr body)
-        : func_name_(func_name),
-          params_(std::move(params)),
+  public:
+    Func(std::optional<name_t_sv> func_name, ParamList params,
+         Statement_ptr body)
+        : func_name_(func_name), params_(std::move(params)),
           body_(std::move(body)) {}
 
     bool has_name() const noexcept { return func_name_.has_value(); }
 
-    std::optional<name_t_sv> get_func_name() const noexcept { return func_name_; }
+    std::optional<name_t_sv> get_func_name() const noexcept {
+        return func_name_;
+    }
 
-    const ParamList& get_params() const noexcept { return params_; }
+    const ParamList &get_params() const noexcept { return params_; }
 
-    Statement& get_body() noexcept { return *body_; }
-    const Statement& get_body() const noexcept { return *body_; }
+    Statement &get_body() noexcept { return *body_; }
+    const Statement &get_body() const noexcept { return *body_; }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
@@ -232,20 +233,20 @@ class Call final : public Expression {
     using ArgExprList = std::vector<Expression_ptr>;
 
   private:
-    Expression_ptr target;    
-    ArgExprList args_;        
+    Expression_ptr target;
+    ArgExprList args_;
 
   public:
     Call(Expression_ptr target, ArgExprList args)
         : target(std::move(target)), args_(std::move(args)) {}
 
-    Expression& get_target() noexcept { return *target; }
-    const Expression& get_target() const noexcept { return *target; }
+    Expression &get_target() noexcept { return *target; }
+    const Expression &get_target() const noexcept { return *target; }
 
-    const ArgExprList& get_args() const noexcept { return args_; }
-    ArgExprList& get_args() noexcept { return args_; }
+    const ArgExprList &get_args() const noexcept { return args_; }
+    ArgExprList &get_args() noexcept { return args_; }
 
-    void accept(ASTVisitor& v) override { v.visit(*this); }
+    void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class Binary_operator : public Expression {
@@ -269,7 +270,7 @@ class Binary_operator : public Expression {
 };
 
 class Unary_operator : public Expression {
-  private: 
+  private:
     Unary_operators op_;
     Expression_ptr operand_;
 
@@ -285,7 +286,7 @@ class Unary_operator : public Expression {
 };
 
 class Number : public Expression {
-  private: 
+  private:
     number_t number_;
 
   public:

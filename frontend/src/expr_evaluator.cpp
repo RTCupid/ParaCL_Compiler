@@ -144,7 +144,6 @@ void Expression_evaluator::visit(Input &node) {
     result_ = value;
 }
 
-
 void Expression_evaluator::visit(Program &node) {}
 void Expression_evaluator::visit(Block_stmt &node) {}
 void Expression_evaluator::visit(Empty_stmt &node) {}
