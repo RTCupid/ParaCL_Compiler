@@ -13,7 +13,7 @@ class Simulator final : public ASTVisitor {
     nametable_t nametable_;
 
   public:
-    nametable_t &get_nametable() { return nametable_; }
+    nametable_t &get_nametable() noexcept { return nametable_; }
 
     void visit(Program &node) override;
     void visit(Block_stmt &node) override;
