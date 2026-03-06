@@ -1,0 +1,6 @@
+bar = func(x, y) {
+  x + y;
+};
+
+t = bar(3, 4);
+print t;
