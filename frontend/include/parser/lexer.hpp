@@ -78,9 +78,15 @@ class Lexer final : public yyFlexLexer {
     int process_semicolon() const noexcept {
         return yy::parser::token::TOK_SEMICOLON;
     }
-    int process_comma() const noexcept { return yy::parser::token::TOK_COMMA; }
-    int process_colon() const noexcept { return yy::parser::token::TOK_COLON; }
-    int process_id() const noexcept { return yy::parser::token::TOK_ID; }
+    int process_comma() const noexcept { 
+        return yy::parser::token::TOK_COMMA; 
+    }
+    int process_colon() const noexcept { 
+        return yy::parser::token::TOK_COLON; 
+    }
+    int process_id() const noexcept { 
+        return yy::parser::token::TOK_ID; 
+    }
     int process_number() const noexcept {
         return yy::parser::token::TOK_NUMBER;
     }
