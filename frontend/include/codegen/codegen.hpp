@@ -31,9 +31,11 @@ class Code_generator : public ASTVisitor {
 
     llvm::Function *current_function_ = nullptr;
 
-    llvm::Value* last_value_;
-public:
-    Code_generator(const std::string &module_name) : module_{module_name, context_}, builder_{context_} {
+    llvm::Value *last_value_;
+
+  public:
+    Code_generator(const std::string &module_name)
+        : module_{module_name, context_}, builder_{context_} {
         module_.setTargetTriple("x86_64-unknown-unknown");
     }
 

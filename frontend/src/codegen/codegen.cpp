@@ -52,12 +52,9 @@ void Code_generator::visit(While_stmt &node) {
     }
 }
 
-void Code_generator::visit(Print_stmt &node) {
-}
+void Code_generator::visit(Print_stmt &node) {}
 
-void Code_generator::visit(Variable &node) {
-
-}
+void Code_generator::visit(Variable &node) {}
 
 void Code_generator::visit(Assignment_expr &node) {
     auto &nametable = simulator_.get_nametable();
@@ -84,32 +81,38 @@ void Code_generator::visit(Binary_operator &node) {
     switch (node.get_operator()) {
     case Binary_operators::Eq: {
         auto cmp = builder_.CreateICmpEQ(left_value, right_value, "eqtmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "eqzext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "eqzext");
         break;
     }
     case Binary_operators::Neq: {
         auto cmp = builder_.CreateICmpNE(left_value, right_value, "neqtmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "neqzext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "neqzext");
         break;
     }
     case Binary_operators::Less: {
         auto cmp = builder_.CreateICmpSLT(left_value, right_value, "lttmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "ltzext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "ltzext");
         break;
     }
     case Binary_operators::LessEq: {
         auto cmp = builder_.CreateICmpSLE(left_value, right_value, "letmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "lezext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "lezext");
         break;
     }
     case Binary_operators::Greater: {
         auto cmp = builder_.CreateICmpSGT(left_value, right_value, "gttmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "gtzext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "gtzext");
         break;
     }
     case Binary_operators::GreaterEq: {
         auto cmp = builder_.CreateICmpSGE(left_value, right_value, "getmp");
-        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_), "gezext");
+        last_value_ = builder_.CreateZExt(cmp, llvm::Type::getInt32Ty(context_),
+                                          "gezext");
     }
     case Binary_operators::Add: {
         last_value_ = builder_.CreateAdd(left_value, right_value, "addtmp");
@@ -144,21 +147,27 @@ void Code_generator::visit(Binary_operator &node) {
         break;
     }
     case Binary_operators::LogOr: {
-        auto left_bool = builder_.CreateICmpNE(left_value,
-                            llvm::ConstantInt::get(left_value->getType(), 0), "leftbool");
-        auto right_bool = builder_.CreateICmpNE(right_value,
-                            llvm::ConstantInt::get(right_value->getType(), 0), "rightbool");
+        auto left_bool = builder_.CreateICmpNE(
+            left_value, llvm::ConstantInt::get(left_value->getType(), 0),
+            "leftbool");
+        auto right_bool = builder_.CreateICmpNE(
+            right_value, llvm::ConstantInt::get(right_value->getType(), 0),
+            "rightbool");
         auto or_bool = builder_.CreateOr(left_bool, right_bool, "logor");
-        last_value_ = builder_.CreateZExt(or_bool, llvm::Type::getInt32Ty(context_), "logorzext");
+        last_value_ = builder_.CreateZExt(
+            or_bool, llvm::Type::getInt32Ty(context_), "logorzext");
         break;
     }
     case Binary_operators::LogAnd: {
-        auto left_bool = builder_.CreateICmpNE(left_value,
-                            llvm::ConstantInt::get(left_value->getType(), 0), "leftbool");
-        auto right_bool = builder_.CreateICmpNE(right_value,
-                            llvm::ConstantInt::get(right_value->getType(), 0), "rightbool");
+        auto left_bool = builder_.CreateICmpNE(
+            left_value, llvm::ConstantInt::get(left_value->getType(), 0),
+            "leftbool");
+        auto right_bool = builder_.CreateICmpNE(
+            right_value, llvm::ConstantInt::get(right_value->getType(), 0),
+            "rightbool");
         auto and_bool = builder_.CreateAnd(left_bool, right_bool, "logand");
-        last_value_ = builder_.CreateZExt(and_bool, llvm::Type::getInt32Ty(context_), "logandzext");
+        last_value_ = builder_.CreateZExt(
+            and_bool, llvm::Type::getInt32Ty(context_), "logandzext");
         break;
     }
     default:
@@ -196,7 +205,8 @@ void Code_generator::visit(Input &node) {
 }
 
 void Code_generator::visit(Number &node) {
-    last_value_ = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), node.get_value());
+    last_value_ = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_),
+                                         node.get_value());
 }
 
 void Code_generator::visit(Func &node) {}
