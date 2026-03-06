@@ -370,9 +370,9 @@ void Graph_dump::visit(Expr_stmt &node) {
 
     gv_ << "    node_" << &node
         << "[shape=Mrecord; style=filled; fillcolor=lightcoral"
-        << "; color=\"#000000\"; fontcolor=\"#000000\"; " << "label=\"{ Expr_stmt"
-        << " | addr: " << &node << " | parent: " << parent_
-        << " | expr: " << expr << "}\"" << "];\n";
+        << "; color=\"#000000\"; fontcolor=\"#000000\"; "
+        << "label=\"{ Expr_stmt" << " | addr: " << &node
+        << " | parent: " << parent_ << " | expr: " << expr << "}\"" << "];\n";
 
     emit_edge(&node, expr);
     Graph_dump child{gv_, &node};

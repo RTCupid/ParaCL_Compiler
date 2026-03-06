@@ -275,8 +275,8 @@ class Expr_stmt final : public Statement {
   public:
     explicit Expr_stmt(Expression_ptr expr) : expr_(expr) {}
 
-    Expression& get_expr() noexcept { return *expr_; }
-    const Expression& get_expr() const noexcept { return *expr_; }
+    Expression &get_expr() noexcept { return *expr_; }
+    const Expression &get_expr() const noexcept { return *expr_; }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
