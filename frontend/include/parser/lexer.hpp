@@ -17,30 +17,60 @@ class Lexer final : public yyFlexLexer {
 
     Lexer(std::istream *in, std::ostream *out) : yyFlexLexer(in, out) {}
 
-    int get_line() const noexcept { return yylineno; }
-    int get_column() const noexcept { return yycolumn; }
-    int get_yyleng() const noexcept { return yyleng; }
-    int process_if() const noexcept { return yy::parser::token::TOK_IF; }
-    int process_else() const noexcept { return yy::parser::token::TOK_ELSE; }
-    int process_while() const noexcept { return yy::parser::token::TOK_WHILE; }
-    int process_print() const noexcept { return yy::parser::token::TOK_PRINT; }
-    int process_input() const noexcept { return yy::parser::token::TOK_INPUT; }
+    int get_line() const noexcept { 
+        return yylineno; 
+    }
+    int get_column() const noexcept { 
+        return yycolumn; 
+    }
+    int get_yyleng() const noexcept { 
+        return yyleng; 
+    }
+    int process_if() const noexcept { 
+        return yy::parser::token::TOK_IF;
+    }
+    int process_else() const noexcept { 
+        return yy::parser::token::TOK_ELSE; 
+    }
+    int process_while() const noexcept { 
+        return yy::parser::token::TOK_WHILE; 
+    }
+    int process_print() const noexcept { 
+        return yy::parser::token::TOK_PRINT; 
+    }
+    int process_input() const noexcept { 
+        return yy::parser::token::TOK_INPUT; 
+    }
     int process_function() const noexcept {
         return yy::parser::token::TOK_FUNC;
     }
     int process_return() const noexcept {
         return yy::parser::token::TOK_RETURN;
     }
-    int process_plus() const noexcept { return yy::parser::token::TOK_PLUS; }
-    int process_minus() const noexcept { return yy::parser::token::TOK_MINUS; }
-    int process_mul() const noexcept { return yy::parser::token::TOK_MUL; }
+    int process_plus() const noexcept { 
+        return yy::parser::token::TOK_PLUS; 
+    }
+    int process_minus() const noexcept { 
+        return yy::parser::token::TOK_MINUS; 
+    }
+    int process_mul() const noexcept { 
+        return yy::parser::token::TOK_MUL; 
+    }
     int process_rem_div() const noexcept {
         return yy::parser::token::TOK_REM_DIV;
     }
-    int process_div() const noexcept { return yy::parser::token::TOK_DIV; }
-    int process_and() const noexcept { return yy::parser::token::TOK_AND; }
-    int process_xor() const noexcept { return yy::parser::token::TOK_XOR; }
-    int process_or() const noexcept { return yy::parser::token::TOK_OR; }
+    int process_div() const noexcept { 
+        return yy::parser::token::TOK_DIV; 
+    }
+    int process_and() const noexcept { 
+        return yy::parser::token::TOK_AND; 
+    }
+    int process_xor() const noexcept {
+        return yy::parser::token::TOK_XOR;
+    }
+    int process_or() const noexcept { 
+        return yy::parser::token::TOK_OR; 
+    }
     int process_log_or() const noexcept {
         return yy::parser::token::TOK_LOG_OR;
     }
@@ -50,9 +80,15 @@ class Lexer final : public yyFlexLexer {
     int process_assign() const noexcept {
         return yy::parser::token::TOK_ASSIGN;
     }
-    int process_eq() const noexcept { return yy::parser::token::TOK_EQ; }
-    int process_not_eq() const noexcept { return yy::parser::token::TOK_NEQ; }
-    int process_less() const noexcept { return yy::parser::token::TOK_LESS; }
+    int process_eq() const noexcept { 
+        return yy::parser::token::TOK_EQ; 
+    }
+    int process_not_eq() const noexcept { 
+        return yy::parser::token::TOK_NEQ; 
+    }
+    int process_less() const noexcept { 
+        return yy::parser::token::TOK_LESS; 
+    }
     int process_greater() const noexcept {
         return yy::parser::token::TOK_GREATER;
     }
@@ -62,7 +98,9 @@ class Lexer final : public yyFlexLexer {
     int process_greater_or_eq() const noexcept {
         return yy::parser::token::TOK_GREATER_OR_EQ;
     }
-    int process_not() const noexcept { return yy::parser::token::TOK_NOT; }
+    int process_not() const noexcept { 
+        return yy::parser::token::TOK_NOT; 
+    }
     int process_left_paren() const noexcept {
         return yy::parser::token::TOK_LEFT_PAREN;
     }
