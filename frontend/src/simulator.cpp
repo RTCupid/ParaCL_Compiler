@@ -25,8 +25,9 @@ void Simulator::visit(Block_stmt &node) {
 void Simulator::visit(Empty_stmt &node) {};
 
 // void Simulator::visit(Assignment_stmt &node) {
-//     auto var_name = static_cast<std::string>(node.get_variable()->get_name());
-//     const auto &value = evaluate_expression(node.get_value());
+//     auto var_name =
+//     static_cast<std::string>(node.get_variable()->get_name()); const auto
+//     &value = evaluate_expression(node.get_value());
 
 //     auto it = nametable_.find(var_name);
 //     if (it != nametable_.end())
