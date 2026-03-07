@@ -82,24 +82,23 @@ cmake --build build
 ```
 Program           ::= TopLevelStmtList EOF ;
 
-TopLevelStmtList  ::= /* empty */ |  TopLevelStmtList TopLevelStatement 
-TopLevelStatement ::= Statement 
+TopLevelStmtList  ::= /* empty */ | TopLevelStmtList TopLevelStatement
+TopLevelStatement ::= Statement
 
-StmtList          ::= /* empty */ |  StmtList Statement 
-Statement         ::= AssignmentStmt ';' | 
-                      IfStmt | WhileStmt | 
-                      PrintStmt ';'      | 
-                      ReturnStmt ';'     |
-                      ExprStmt           |
-                      BlockStmt          | 
-                      EmptyStmt 
+StmtList          ::= /* empty */ | StmtList Statement
+Statement         ::= IfStmt
+                    | WhileStmt
+                    | PrintStmt ';'
+                    | ReturnStmt ';'
+                    | ExprStmt
+                    | BlockStmt
+                    | EmptyStmt
 
-EmptyStmt         ::= ';' 
+EmptyStmt         ::= ';'
 ExprStmt          ::= Expression ';'
-ReturnStmt        ::= 'return' [Expression] 
-BlockStmt         ::= '{' StmtList '}' 
-AssignmentStmt    ::= Var '=' Expression
-IfStmt            ::= 'if'    '(' Expression ')' Statement [ 'else' Statement ]
+ReturnStmt        ::= 'return' [Expression]
+BlockStmt         ::= '{' StmtList '}'
+IfStmt            ::= 'if' '(' Expression ')' Statement [ 'else' Statement ]
 WhileStmt         ::= 'while' '(' Expression ')' Statement
 PrintStmt         ::= 'print' Expression
 
@@ -107,19 +106,22 @@ Expression        ::= AssignmentExpr
 AssignmentExpr    ::= Or | Var '=' AssignmentExpr
 Or                ::= And | Or '||' And
 And               ::= BitwiseOp | And '&&' BitwiseOp
-BitwiseOp         ::= Equality | BitwiseOp '&' Equality | BitwiseOp '^' Equality | BitwiseOp '|'  Equality
+BitwiseOp         ::= Equality
+                    | BitwiseOp '&' Equality
+                    | BitwiseOp '^' Equality
+                    | BitwiseOp '|' Equality
 Equality          ::= Relational ( ( '==' | '!=' ) Relational )*
 Relational        ::= AddSub ( ( '<' | '>' | '<=' | '>=' ) AddSub )*
 AddSub            ::= MulDiv ( ( '+' | '-' ) MulDiv )*
-MulDiv            ::= Unary  ( ( '*' | '/' | '%' ) Unary )*
+MulDiv            ::= Unary ( ( '*' | '/' | '%' ) Unary )*
 Unary             ::= '-' Unary | '+' Unary | '!' Unary | Postfix
-Postfix           ::= Primary ( '(' [ ArgList ] ')' )* 
-ArgList           ::= Expression ( ',' Expression )* 
-Primary           ::= '(' Expression ')' | Var | Number | Function | BlockStmt | Input
+Postfix           ::= Primary ( '(' [ ArgList ] ')' )*
+ArgList           ::= Expression ( ',' Expression )*
+Primary           ::= '(' Expression ')' | Var | Number | Function | Input
 
 Function          ::= 'func' '(' [ ParamList ] ')' [ ':' Identifier ] BlockStmt
-ParamList         ::= Identifier ( ',' Identifier )* 
-Identifier        ::= Var ;
+ParamList         ::= Identifier ( ',' Identifier )*
+Identifier        ::= Var
 
 Input             ::= '?'
 Var               ::= [A-Za-z_][A-Za-z0-9_]*

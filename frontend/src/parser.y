@@ -20,6 +20,8 @@
   #include <type_traits>
   #include <utility>
   #include <iostream>
+  #include <optional>
+  #include <vector>
 
   #include "config.hpp"
   #include "data_structures/node.hpp"
@@ -110,6 +112,8 @@
 %token TOK_WHILE         "while"
 %token TOK_PRINT         "print"
 %token TOK_INPUT         "?"
+%token TOK_FUNC          "func"
+%token TOK_RETURN        "return"
 
 /* --- Arithmetic operators --- */
 %token TOK_PLUS          "+"
@@ -143,6 +147,8 @@
 %token TOK_LEFT_BRACE    "{"
 %token TOK_RIGHT_BRACE   "}"
 %token TOK_SEMICOLON     ";"
+%token TOK_COMMA         ","
+%token TOK_COLON         ":"
 
 /* --- Tokens with semantic values --- */
 %token <std::string> TOK_ID     "identifier"
@@ -152,13 +158,16 @@
 %token TOK_EOF 0
 /* ______________________________________________________ */
 
-%type <language::StmtList>             toplevel_stmt_list
-%type <language::Statement_ptr>        toplevel_statement
-%type <language::StmtList>             stmt_list
-%type <language::Statement_ptr>        statement
-%type <language::Statement_ptr>        assignment_stmt if_stmt while_stmt print_stmt block_stmt empty_stmt
-%type <language::Expression_ptr>       expression bitwise_op equality relational add_sub mul_div unary primary assignment_expr or and
+%type <language::StmtList>                   toplevel_stmt_list
+%type <language::Statement_ptr>              toplevel_statement
+%type <language::StmtList>                   stmt_list
+%type <language::Statement_ptr> statement
+%type <language::Statement_ptr> if_stmt while_stmt print_stmt block_stmt empty_stmt return_stmt expr_stmt
 
+%type <language::Expression_ptr>             expression assignment_expr or and bitwise_op equality relational add_sub mul_div unary postfix primary function_expr input_expr
+%type <language::Call::ArgExprList>          opt_arg_list arg_list
+%type <language::Func::ParamList>            opt_param_list param_list
+%type <std::optional<language::name_t_sv>>   opt_func_name
 
 %start program
 
@@ -202,28 +211,38 @@ stmt_list:
                 }
                ;
 
-statement      : assignment_stmt TOK_SEMICOLON
-                 { $$ = $1; }
-               | if_stmt
-                 { $$ = $1; }
-               | while_stmt
-                 { $$ = $1; }
-               | print_stmt TOK_SEMICOLON
-                 { $$ = $1; }
-               | block_stmt
-                 { $$ = $1; }
-               | empty_stmt
-                 { $$ = $1; }
-               | error TOK_SEMICOLON
-                 {
-                   yyerrok;
-                 }
-               ;
+statement      : 
+                if_stmt
+                  { $$ = $1; }
+                | while_stmt
+                  { $$ = $1; }
+                | print_stmt TOK_SEMICOLON
+                  { $$ = $1; }
+                | return_stmt TOK_SEMICOLON
+                  { $$ = $1; }
+                | expr_stmt
+                  { $$ = $1; }
+                | block_stmt
+                  { $$ = $1; }
+                | empty_stmt
+                  { $$ = $1; }
+                | error TOK_SEMICOLON
+                  {
+                    yyerrok;
+                    $$ = pool.make<language::Empty_stmt>();
+                  }
+                ;
 
 empty_stmt     : TOK_SEMICOLON
                 {
                   $$ = pool.make<language::Empty_stmt>();
                 }
+                ;
+
+expr_stmt       : expression TOK_SEMICOLON
+                  {
+                    $$ = pool.make<language::Expr_stmt>($1);
+                  }
                 ;
 
 block_stmt     : TOK_LEFT_BRACE
@@ -238,17 +257,6 @@ block_stmt     : TOK_LEFT_BRACE
                 }
                ;
 
-assignment_stmt: TOK_ID TOK_ASSIGN expression
-                {
-                  language::name_t_sv name_sv = lookup_in_scopes(my_parser, $1);
-                  if (name_sv.empty())
-                    name_sv = add_var_to_scope(my_parser, $1);
-
-                  auto variable = pool.make<language::Variable>(name_sv);
-                  $$ = pool.make<language::Assignment_stmt>(variable, $3);
-                }
-                ;
-
 if_stmt        : TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement %prec PREC_IFX
                 {
                   $$ = pool.make<language::If_stmt>($3, $5);
@@ -258,13 +266,15 @@ if_stmt        : TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement %pre
                   $$ = pool.make<language::If_stmt>($3, $5, $7);
                 }
                | TOK_IF error TOK_RIGHT_PAREN statement %prec PREC_IFX
-                {
-                  yyerrok;
-                }
+                 {
+                   yyerrok;
+                   $$ = pool.make<language::Empty_stmt>();
+                 }
                | TOK_IF TOK_LEFT_PAREN error statement %prec PREC_IFX
-                {
-                  yyerrok;
-                }
+                 {
+                   yyerrok;
+                   $$ = pool.make<language::Empty_stmt>();
+                 }
                ;
 
 while_stmt     : TOK_WHILE TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement
@@ -272,13 +282,15 @@ while_stmt     : TOK_WHILE TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement
                   $$ = pool.make<language::While_stmt>($3, $5);
                 }
                | TOK_WHILE error TOK_RIGHT_PAREN statement
-                {
-                  yyerrok;
-                }
-               | TOK_WHILE TOK_LEFT_PAREN error statement
-                {
-                  yyerrok;
-                }
+                  {
+                    yyerrok;
+                    $$ = pool.make<language::Empty_stmt>();
+                  }
+                | TOK_WHILE TOK_LEFT_PAREN error statement
+                  {
+                    yyerrok;
+                    $$ = pool.make<language::Empty_stmt>();
+                  }
                ;
 
 print_stmt     : TOK_PRINT expression
@@ -286,12 +298,33 @@ print_stmt     : TOK_PRINT expression
                   $$ = pool.make<language::Print_stmt>($2);
                 }
                ;
+return_stmt     : TOK_RETURN
+                  {
+                    $$ = pool.make<language::Return_stmt>(nullptr);
+                  }
+                | TOK_RETURN expression
+                  {
+                    $$ = pool.make<language::Return_stmt>($2);
+                  }
+                ;
 
 expression     : assignment_expr
                 {
                   $$ = $1;
                 }
               ;
+
+assignment_expr : or { $$ = $1; }
+                | TOK_ID TOK_ASSIGN assignment_expr
+                  {
+                    language::name_t_sv name_sv = lookup_in_scopes(my_parser, $1);
+                    if (name_sv.empty())
+                      name_sv = add_var_to_scope(my_parser, $1);
+
+                    auto variable = pool.make<language::Variable>(name_sv);
+                    $$ = pool.make<language::Assignment_expr>(variable, $3);
+                  }
+                ;
 
 or            : and { $$ = $1; }
               | or TOK_LOG_OR and
@@ -357,38 +390,119 @@ unary          : TOK_MINUS unary
                 { $$ = pool.make<language::Unary_operator>(Unary_operators::Plus, $2); }
                | TOK_NOT unary
                 { $$ = pool.make<language::Unary_operator>(Unary_operators::Not, $2); }
-               | primary
+               | postfix
                 { $$ = $1; }
                ;
 
-primary        : TOK_NUMBER
-                { $$ = pool.make<language::Number>($1); }
-               | TOK_ID
-                {
-                  language::name_t_sv name_sv = lookup_in_scopes(my_parser, $1);
-                  if (name_sv.empty()) {
-                    error(@1, std::string("'") + $1 + "' was not declared in this scope");
-                    name_sv = add_var_to_scope(my_parser, $1);
+postfix         : primary
+                  {
+                    $$ = $1;
                   }
+                | postfix TOK_LEFT_PAREN opt_arg_list TOK_RIGHT_PAREN
+                  {
+                    $$ = pool.make<language::Call>($1, $3);
+                  }
+                ;
 
-                  $$ = pool.make<language::Variable>(name_sv);
-                }
-               | TOK_LEFT_PAREN expression TOK_RIGHT_PAREN
-                { $$ = $2; }
-               | TOK_INPUT
-                { $$ = pool.make<language::Input>(); }
-               ;
+opt_arg_list    :
+                  {
+                    $$ = language::Call::ArgExprList{};
+                  }
+                | arg_list
+                  {
+                    $$ = $1;
+                  }
+                ;
 
-assignment_expr
-              : or { $$ = $1; }
-              | TOK_ID TOK_ASSIGN assignment_expr
+arg_list        : expression
+                  {
+                    $$ = language::Call::ArgExprList{};
+                    $$.push_back($1);
+                  }
+                | arg_list TOK_COMMA expression
+                  {
+                    $1.push_back($3);
+                    $$ = $1;
+                  }
+                ;
+
+primary         : TOK_NUMBER
+                  {
+                    $$ = pool.make<language::Number>($1);
+                  }
+                | TOK_ID
+                  {
+                    language::name_t_sv name_sv = lookup_in_scopes(my_parser, $1);
+                    if (name_sv.empty()) {
+                      error(@1, std::string("'") + $1 + "' was not declared in this scope");
+                      name_sv = add_var_to_scope(my_parser, $1);
+                    }
+
+                    $$ = pool.make<language::Variable>(name_sv);
+                  }
+                | TOK_LEFT_PAREN expression TOK_RIGHT_PAREN
+                  {
+                    $$ = $2;
+                  }
+                | function_expr
+                  {
+                    $$ = $1;
+                  }
+                | input_expr
+                  {
+                    $$ = $1;
+                  }
+                ;
+
+input_expr      : TOK_INPUT
+                  {
+                    $$ = pool.make<language::Input>();
+                  }
+                ;
+
+function_expr   : TOK_FUNC
                 {
-                  language::name_t_sv name_sv = lookup_in_scopes(my_parser, $1);
-                  if (name_sv.empty())
-                    name_sv = add_var_to_scope(my_parser, $1);
-
-                  auto variable = pool.make<language::Variable>(name_sv);
-                  $$ = pool.make<language::Assignment_expr>(variable, $3);
+                  push_scope(my_parser, nametable_t{});
+                }
+                TOK_LEFT_PAREN opt_param_list TOK_RIGHT_PAREN opt_func_name
+                TOK_LEFT_BRACE stmt_list TOK_RIGHT_BRACE
+                {
+                  auto body = pool.make<language::Block_stmt>($8);
+                  $$ = pool.make<language::Func>($6, $4, body);
+                  pop_scope(my_parser);
                 }
               ;
+
+opt_param_list :
+                  {
+                    $$ = language::Func::ParamList{};
+                  }
+                | param_list
+                  {
+                    $$ = $1;
+                  }
+                ;
+
+param_list      : TOK_ID
+                  {
+                    $$ = language::Func::ParamList{};
+                    $$.push_back(add_var_to_scope(my_parser, $1));
+                  }
+                | param_list TOK_COMMA TOK_ID
+                  {
+                    $1.push_back(add_var_to_scope(my_parser, $3));
+                    $$ = $1;
+                  }
+                ;
+
+opt_func_name   :
+                  {
+                    $$ = std::nullopt;
+                  }
+                | TOK_COLON TOK_ID
+                  {
+                    $$ = add_var_to_scope(my_parser, $2);
+                  }
+                ;
+
 %%

@@ -1,0 +1,9 @@
+foo = func(check_flag) : buz {
+    if (check_flag == 9) {
+        return 25;
+    }
+  check_flag + 1;
+};
+
+bar = foo(9);
+print bar;

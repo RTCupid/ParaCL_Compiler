@@ -69,6 +69,9 @@ void Simulator::visit(Variable &node) {}
 
 void Simulator::visit(Func &node) {}
 void Simulator::visit(Call &node) {}
+void Simulator::visit(Return_stmt &node) {}
+
+void Simulator::visit(Expr_stmt &node) { evaluate_expression(node.get_expr()); }
 
 number_t Simulator::evaluate_expression(Expression &expression) {
     Expression_evaluator evaluator(*this);
