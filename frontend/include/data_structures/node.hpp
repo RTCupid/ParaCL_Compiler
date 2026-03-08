@@ -12,7 +12,6 @@ class Node;
 class Program;
 class Statement;
 class Expression;
-class Assignment_stmt;
 class Assignment_expr;
 class Block_stmt;
 class Empty_stmt;

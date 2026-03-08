@@ -744,7 +744,6 @@ class ASTVisitor {
     virtual void visit(Program &node) = 0;
     virtual void visit(Block_stmt &node) = 0;
     virtual void visit(Empty_stmt &node) = 0;
-    virtual void visit(Assignment_stmt &node) = 0;
     virtual void visit(Assignment_expr &node) = 0;
     virtual void visit(Input &node) = 0;
     virtual void visit(If_stmt &node) = 0;
