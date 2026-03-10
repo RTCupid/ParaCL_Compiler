@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   format-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 
     steps:
     - uses: actions/checkout@v4
     - name: Check formatting
@@ -14,7 +14,7 @@ jobs:
         git diff --exit-code
 
   format-fix:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'Auto-format')
     permissions:
       contents: write
@@ -35,7 +35,7 @@ jobs:
         git push
 
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -43,15 +43,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake build-essential libgtest-dev flex bison libfl-dev
-          sudo cmake -S /usr/src/googletest -B /usr/src/googletest/build
-          sudo cmake --build /usr/src/googletest/build --config Release
-          sudo cmake --install /usr/src/googletest/build
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18 all
+
+      - name: Install GoogleTest
+        run: |
+          sudo apt-get install -y libgtest-dev
+          cd /usr/src/googletest
+          sudo cmake -B build -S .
+          sudo cmake --build build
+          sudo cmake --install build
 
       - name: Configure CMake
         run: cmake -B build -S .
 
       - name: Build project
-        run: cmake --build build --config Release -j2
+        run: cmake --build build -j2
 
       - name: Run tests
         run: |
