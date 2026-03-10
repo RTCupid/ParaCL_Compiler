@@ -1,6 +1,6 @@
 #include "simulator/simulator.hpp"
-#include "simulator/expr_evaluator.hpp"
 #include "node.hpp"
+#include "simulator/expr_evaluator.hpp"
 #include <iostream>
 
 namespace language {
