@@ -3,16 +3,16 @@
 
 #include "config.hpp"
 #include <llvm-18/llvm/IR/Instructions.h>
-#include <vector>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <stdexcept>
+#include <vector>
 
 namespace language {
 
 class Scope_stack final {
-private:
+  private:
     std::vector<symbol_table_t> scopes_;
 
   public:
@@ -31,7 +31,7 @@ private:
         scopes_.pop_back();
     }
 
-    llvm::AllocaInst* lookup(name_t_sv var_name) const {
+    llvm::AllocaInst *lookup(name_t_sv var_name) const {
         if (scopes_.empty())
             return {};
 
@@ -48,7 +48,7 @@ private:
 
     bool find(name_t_sv var_name) const { return !lookup(var_name); }
 
-    void declare(name_t_sv var_name, llvm::AllocaInst* alloca) {
+    void declare(name_t_sv var_name, llvm::AllocaInst *alloca) {
         if (scopes_.empty()) {
             throw std::underflow_error(
                 "add_variable() called with empty scope stack");

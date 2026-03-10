@@ -31,12 +31,13 @@ void Code_generator::visit(Print_stmt &node) {}
 
 void Code_generator::visit(Variable &node) {
     auto var_name = std::string(node.get_name());
-    llvm::AllocaInst* alloca = scope_stack_.lookup(var_name);
+    llvm::AllocaInst *alloca = scope_stack_.lookup(var_name);
 
     if (!alloca)
         throw std::runtime_error("use of undeclared variable: " + var_name);
 
-    last_value_ = builder_.CreateLoad(alloca->getAllocatedType(), alloca, var_name);
+    last_value_ =
+        builder_.CreateLoad(alloca->getAllocatedType(), alloca, var_name);
 }
 
 void Code_generator::visit(Assignment_expr &node) {
@@ -48,9 +49,11 @@ void Code_generator::visit(Assignment_expr &node) {
     auto alloca = scope_stack_.lookup(var_name);
 
     if (!alloca) {
-        llvm::Function* func = builder_.GetInsertBlock()->getParent();
-        llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(), func->getEntryBlock().begin());
-        alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt32Ty(context_), nullptr, var_name);
+        llvm::Function *func = builder_.GetInsertBlock()->getParent();
+        llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(),
+                                     func->getEntryBlock().begin());
+        alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt32Ty(context_),
+                                         nullptr, var_name);
 
         scope_stack_.declare(var_name, alloca);
     }
@@ -176,7 +179,8 @@ void Code_generator::visit(Unary_operator &node) {
     }
     case Unary_operators::Not: {
         auto not_bool = builder_.CreateICmpEQ(value, 0, "eqtmp");
-        last_value_ = builder_.CreateZExt(not_bool, llvm::Type::getInt32Ty(context_), "unarynotzext");
+        last_value_ = builder_.CreateZExt(
+            not_bool, llvm::Type::getInt32Ty(context_), "unarynotzext");
         break;
     }
     default:

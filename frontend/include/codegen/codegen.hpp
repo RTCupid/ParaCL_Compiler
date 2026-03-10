@@ -1,8 +1,8 @@
 #ifndef FRONTEND_INCLUDE_CODEGEN_HPP
 #define FRONTEND_INCLUDE_CODEGEN_HPP
 
-#include "data_structures/node.hpp"
 #include "codegen/scope_stack.hpp"
+#include "data_structures/node.hpp"
 #include "llvm/IR/Argument.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -30,6 +30,7 @@ class Code_generator final : public ASTVisitor {
     llvm::Function *current_function_ = nullptr;
 
     llvm::Value *last_value_;
+
   public:
     Code_generator(const std::string &module_name)
         : module_{module_name, context_}, builder_{context_} {
