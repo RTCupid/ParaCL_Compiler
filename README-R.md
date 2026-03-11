@@ -50,10 +50,10 @@
 Клонирование репозитория, сборка и компиляция выполняется при помощи следующих команд:
 
 ```
-git clone https://github.com/RTCupid/Biba_Boba_Buba_Language.git
-cd Biba_Boba_Buba_Language
+git clone https://github.com/RTCupid/ParaCL_Compiler.git
+cd ParaCL_Compiler
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+cmake --build build -j
 ```
 
 Запуск программы производится в следующем формате:
