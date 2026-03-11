@@ -54,8 +54,9 @@ void driver(int argc, const char **argv) {
 #ifdef INTERPRET
     language::Simulator simulator{};
     root->accept(simulator);
-#else
-    language::Code_generator generator{argv[1]};
+#else    
+    const std::string& module_name = argv[1];
+    language::Code_generator generator{module_name};
     root->accept(generator);
 
     generator.print(); // debug output generated LLVM IR

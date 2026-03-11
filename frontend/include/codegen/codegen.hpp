@@ -72,6 +72,9 @@ class Code_generator final : public ASTVisitor {
     void visit(Call &node) override;
     void visit(Return_stmt &node) override;
     void visit(Expr_stmt &node) override;
+
+private:
+    llvm::FunctionCallee get_printf();
 };
 
 } // namespace language

@@ -2,7 +2,7 @@
 #define FRONTEND_INCLUDE_SCOPE_STACK_HPP
 
 #include "config.hpp"
-#include <llvm-18/llvm/IR/Instructions.h>
+#include <llvm/IR/Instructions.h>
 #include <ranges>
 #include <stdexcept>
 #include <string>

@@ -1,18 +1,24 @@
 #include "codegen/codegen.hpp"
 #include "node.hpp"
 #include <iostream>
-#include <llvm-18/llvm/IR/BasicBlock.h>
-#include <llvm-18/llvm/IR/Constants.h>
-#include <llvm-18/llvm/IR/DerivedTypes.h>
-#include <llvm-18/llvm/IR/Function.h>
-#include <llvm-18/llvm/IR/Type.h>
-#include <llvm-18/llvm/IR/Value.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
 
 namespace language {
 
 void Code_generator::visit(Program &node) {
-    auto *main_ty = llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
-    auto *main_func = llvm::Function::Create(main_ty, llvm::Function::ExternalLinkage, "main", module_);
+    auto *main_ty = 
+        llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
+
+    auto *main_func = 
+        llvm::Function::Create(main_ty, 
+                               llvm::Function::ExternalLinkage, 
+                               "main", 
+                               module_);
 
     auto *entry_bb = llvm::BasicBlock::Create(context_, "entry", main_func);
 
@@ -187,12 +193,27 @@ void Code_generator::visit(Unary_operator &node) {
 }
 
 void Code_generator::visit(Input &node) {}
-void Code_generator::visit(Print_stmt &node) {}
+
+void Code_generator::visit(Print_stmt &node) {
+    node.get_value().accept(*this);
+
+    llvm::Value *value_to_print = last_value_;
+
+    llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d\n", "print_fmt");
+    llvm::FunctionCallee printf_func = get_printf();
+
+    last_value_ = builder_.CreateCall(
+        printf_func,
+        {format_str, value_to_print},
+        "printfcall"
+    );
+}
 
 void Code_generator::visit(If_stmt &node) {
     node.get_condition().accept(*this);
 
-    llvm::Value *cond = builder_.CreateICmpNE(last_value_, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
+    llvm::Value *cond = builder_.CreateICmpNE(last_value_, 
+        llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
 
     auto *then_bb = llvm::BasicBlock::Create(context_, "then", current_function_);
 
@@ -276,5 +297,13 @@ void Code_generator::visit(Variable &node) {
 void Code_generator::visit(Empty_stmt &node) {
     // nothing needs to be done
 };
+
+llvm::FunctionCallee Code_generator::get_printf() {
+    auto printf_type = llvm::FunctionType::get(
+        llvm::Type::getInt32Ty(context_),
+        llvm::PointerType::get(llvm::Type::getInt8Ty(context_), 0), true);
+
+    return module_.getOrInsertFunction("printf", printf_type);
+}
 
 } // namespace language
