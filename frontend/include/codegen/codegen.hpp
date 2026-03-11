@@ -37,6 +37,10 @@ class Code_generator final : public ASTVisitor {
         module_.setTargetTriple("x86_64-unknown-unknown");
     }
 
+    void print() {
+        module_.print(llvm::outs(), nullptr);
+    }
+
     void visit(Program &node) override;
     void visit(Block_stmt &node) override;
 

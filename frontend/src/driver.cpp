@@ -1,4 +1,5 @@
 #include "driver.hpp"
+#include "codegen/codegen.hpp"
 #include "dump_path_gen.hpp"
 #include "graph_dump.hpp"
 #include "lexer.hpp"
@@ -36,8 +37,8 @@ void driver(int argc, const char **argv) {
         throw std::runtime_error("unknown error\n");
     }
 
-    language::Simulator simulator{};
-    root->accept(simulator);
+    // language::Simulator simulator{};
+    // root->accept(simulator);
 
 #ifdef GRAPH_DUMP
     // ____________GRAPH DUMP___________ //
@@ -52,4 +53,10 @@ void driver(int argc, const char **argv) {
     }
     language::graph_dump(gv, *root);
 #endif
+
+
+    language::Code_generator generator{argv[1]};
+    root->accept(generator);
+
+    generator.print();
 }
