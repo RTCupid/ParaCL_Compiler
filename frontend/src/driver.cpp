@@ -51,13 +51,13 @@ void driver(int argc, const char **argv) {
     language::graph_dump(gv, *root);
 #endif
 
-#ifdef INTERPRETATOR
+#ifdef INTERPRET
+    language::Simulator simulator{};
+    root->accept(simulator);
+#else
     language::Code_generator generator{argv[1]};
     root->accept(generator);
 
     generator.print(); // debug output generated LLVM IR
-#else
-    language::Simulator simulator{};
-    root->accept(simulator);
 #endif
 }

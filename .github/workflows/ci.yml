@@ -35,7 +35,7 @@ jobs:
         git push
 
   build-and-test:
-  runs-on: ubuntu-22.04  
+  runs-on: ubuntu-22.04
   steps:
     - uses: actions/checkout@v4
 
@@ -57,7 +57,7 @@ jobs:
         sudo cmake --install build
 
     - name: Configure CMake
-      run: cmake -B build -S .
+      run: cmake -B build -S . -DINTERPRET=ON
 
     - name: Build project
       run: cmake --build build -j2

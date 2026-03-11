@@ -67,6 +67,10 @@ if (GRAPH_DUMP)
     target_compile_definitions(frontend PRIVATE GRAPH_DUMP)
 endif()
 
+if (INTERPRET)
+    target_compile_definitions(frontend PRIVATE INTERPRET)
+endif()
+
 target_include_directories(frontend PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/graph_dump
