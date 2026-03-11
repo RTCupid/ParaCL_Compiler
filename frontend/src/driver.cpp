@@ -59,5 +59,10 @@ void driver(int argc, const char **argv) {
     root->accept(generator);
 
     generator.print(); // debug output generated LLVM IR
+
+    std::string ir_file = "./build/temp.ll";
+    std::string exe_file = "./build/a.out";
+
+    generator.compile(ir_file, exe_file);
 #endif
 }

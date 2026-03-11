@@ -228,6 +228,8 @@ void Code_generator::visit(If_stmt &node) {
 void Code_generator::visit(While_stmt &node) {
     auto *cond_bb = llvm::BasicBlock::Create(context_, "cond_loop", current_function_);
 
+    last_value_ = builder_.CreateBr(cond_bb);
+
     builder_.SetInsertPoint(cond_bb);
 
     node.get_condition().accept(*this);

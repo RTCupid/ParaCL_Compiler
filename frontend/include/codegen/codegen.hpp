@@ -13,9 +13,8 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/raw_ostream.h"
-#include <llvm-18/llvm/IR/Instructions.h>
-#include <unordered_map>
-#include <vector>
+#include <llvm/IR/Instructions.h>
+#include <llvm/TargetParser/Host.h>
 
 namespace language {
 
@@ -34,11 +33,20 @@ class Code_generator final : public ASTVisitor {
   public:
     Code_generator(const std::string &module_name)
         : module_{module_name, context_}, builder_{context_} {
-        module_.setTargetTriple("x86_64-unknown-unknown");
+        module_.setTargetTriple(llvm::sys::getProcessTriple());
     }
 
-    void print() {
+    void print() const {
         module_.print(llvm::outs(), nullptr);
+    }
+
+    void compile(std::string ir_file, std::string exe_file) {
+        std::error_code EC;
+        llvm::raw_fd_ostream OS(ir_file, EC);
+        module_.print(OS, nullptr);
+
+        std::string cmd = "clang " + ir_file + " -o " + exe_file;
+        int result = std::system(cmd.c_str());
     }
 
     void visit(Program &node) override;
