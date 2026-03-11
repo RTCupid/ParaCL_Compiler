@@ -40,7 +40,7 @@ class Code_generator final : public ASTVisitor {
         module_.print(llvm::outs(), nullptr);
     }
 
-    void compile(std::string ir_file, std::string exe_file) {
+    void compile(const std::string& ir_file, const std::string& exe_file) {
         std::error_code EC;
         llvm::raw_fd_ostream OS(ir_file, EC);
         module_.print(OS, nullptr);
@@ -74,7 +74,9 @@ class Code_generator final : public ASTVisitor {
     void visit(Expr_stmt &node) override;
 
 private:
+    llvm::FunctionCallee get_func(const std::string &name);
     llvm::FunctionCallee get_printf();
+    llvm::FunctionCallee get_scanf();
 };
 
 } // namespace language

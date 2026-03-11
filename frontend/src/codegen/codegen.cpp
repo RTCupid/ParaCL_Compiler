@@ -192,7 +192,35 @@ void Code_generator::visit(Unary_operator &node) {
     }
 }
 
-void Code_generator::visit(Input &node) {}
+void Code_generator::visit(Input &node) {
+    std::string var_name = "__input_var";
+    llvm::AllocaInst *alloca = scope_stack_.lookup(var_name);
+
+    if (!alloca) {
+        llvm::Function *func = builder_.GetInsertBlock()->getParent();
+        llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(),
+                                     func->getEntryBlock().begin());
+        alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt32Ty(context_),
+                                         nullptr, var_name);
+
+        scope_stack_.declare(var_name, alloca);
+    }
+
+    llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d", "scanf_fmt");
+    llvm::FunctionCallee scanf_func = get_scanf();
+
+    builder_.CreateCall(
+        scanf_func,
+        {format_str, alloca},
+        "scanfcall"
+    );
+
+    last_value_ = builder_.CreateLoad(
+        alloca->getAllocatedType(),
+        alloca,
+        var_name
+    );
+}
 
 void Code_generator::visit(Print_stmt &node) {
     node.get_value().accept(*this);
@@ -298,12 +326,20 @@ void Code_generator::visit(Empty_stmt &node) {
     // nothing needs to be done
 };
 
-llvm::FunctionCallee Code_generator::get_printf() {
-    auto printf_type = llvm::FunctionType::get(
+llvm::FunctionCallee Code_generator::get_func(const std::string &name) {
+    auto type = llvm::FunctionType::get(
         llvm::Type::getInt32Ty(context_),
         llvm::PointerType::get(llvm::Type::getInt8Ty(context_), 0), true);
 
-    return module_.getOrInsertFunction("printf", printf_type);
+    return module_.getOrInsertFunction(name, type);
+}
+
+llvm::FunctionCallee Code_generator::get_printf() {
+    return get_func("printf");
+}
+
+llvm::FunctionCallee Code_generator::get_scanf() {
+    return get_func("scanf");
 }
 
 } // namespace language

@@ -1,6 +1,7 @@
 #include "driver.hpp"
 #include "codegen/codegen.hpp"
 #include "dump_path_gen.hpp"
+#include "compile_path_gen.hpp"
 #include "graph_dump.hpp"
 #include "lexer.hpp"
 #include "my_parser.hpp"
@@ -55,14 +56,15 @@ void driver(int argc, const char **argv) {
     language::Simulator simulator{};
     root->accept(simulator);
 #else    
+    const auto paths = language::make_compile_paths();
+    const std::string ir_file = paths.ll.string();
+    const std::string exe_file = paths.exe.string();
+
     const std::string& module_name = argv[1];
     language::Code_generator generator{module_name};
     root->accept(generator);
 
     generator.print(); // debug output generated LLVM IR
-
-    std::string ir_file = "./build/temp.ll";
-    std::string exe_file = "./build/a.out";
 
     generator.compile(ir_file, exe_file);
 #endif
