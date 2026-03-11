@@ -1,11 +1,12 @@
 #include "driver.hpp"
+#include "codegen/codegen.hpp"
 #include "dump_path_gen.hpp"
 #include "graph_dump.hpp"
 #include "lexer.hpp"
 #include "my_parser.hpp"
 #include "node.hpp"
 #include "parser.hpp"
-#include "simulator.hpp"
+#include "simulator/simulator.hpp"
 #include <iostream>
 
 void driver(int argc, const char **argv) {
@@ -36,9 +37,6 @@ void driver(int argc, const char **argv) {
         throw std::runtime_error("unknown error\n");
     }
 
-    language::Simulator simulator{};
-    root->accept(simulator);
-
 #ifdef GRAPH_DUMP
     // ____________GRAPH DUMP___________ //
     const auto paths = language::make_dump_paths();
@@ -51,5 +49,20 @@ void driver(int argc, const char **argv) {
         throw std::runtime_error("unable to open gv file\n");
     }
     language::graph_dump(gv, *root);
+#endif
+
+#ifdef INTERPRET
+    language::Simulator simulator{};
+    root->accept(simulator);
+#else
+    language::Code_generator generator{argv[1]};
+    root->accept(generator);
+
+    generator.print(); // debug output generated LLVM IR
+
+    std::string ir_file = "./build/temp.ll";
+    std::string exe_file = "./build/a.out";
+
+    generator.compile(ir_file, exe_file);
 #endif
 }

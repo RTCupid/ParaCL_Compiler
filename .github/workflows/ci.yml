@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   format-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Check formatting
@@ -14,7 +14,7 @@ jobs:
         git diff --exit-code
 
   format-fix:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'Auto-format')
     permissions:
       contents: write
@@ -35,25 +35,34 @@ jobs:
         git push
 
   build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  runs-on: ubuntu-22.04
+  steps:
+    - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake build-essential libgtest-dev flex bison libfl-dev
-          sudo cmake -S /usr/src/googletest -B /usr/src/googletest/build
-          sudo cmake --build /usr/src/googletest/build --config Release
-          sudo cmake --install /usr/src/googletest/build
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18"
 
-      - name: Configure CMake
-        run: cmake -B build -S .
+    - name: Install other dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential libgtest-dev flex bison libfl-dev
 
-      - name: Build project
-        run: cmake --build build --config Release -j2
+    - name: Install GoogleTest
+      run: |
+        cd /usr/src/googletest
+        sudo cmake -B build -S .
+        sudo cmake --build build
+        sudo cmake --install build
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure
+    - name: Configure CMake
+      run: cmake -B build -S . -DINTERPRET=ON
+
+    - name: Build project
+      run: cmake --build build -j2
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure

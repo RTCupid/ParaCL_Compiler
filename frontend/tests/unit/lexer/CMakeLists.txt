@@ -14,18 +14,18 @@ set_source_files_properties(
 )
 
 add_executable(lexer ${SRC_LIST})
-
 add_dependencies(lexer generate_parser)
 
+target_include_directories(lexer PRIVATE ${LLVM_INCLUDE_DIRS})
+target_compile_definitions(lexer PRIVATE ${LLVM_DEFINITIONS})
+
 target_link_libraries(lexer
-    PRIVATE 
-        frontend::headers
-        GTest::gtest
-        GTest::gtest_main
-        Threads::Threads
-        #${FLEX_LIBRARIES}
+    PRIVATE
+    frontend::headers
+    GTest::gtest
+    GTest::gtest_main
+    Threads::Threads
+    ${LLVM_LIBS}  
 )
 
-gtest_discover_tests(lexer
-    PROPERTIES LABELS "unit"
-)  
+gtest_discover_tests(lexer PROPERTIES LABELS "unit")

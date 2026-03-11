@@ -1,9 +1,8 @@
-#ifndef FRONTEND_INCLUDE_AST_HPP
-#define FRONTEND_INCLUDE_AST_HPP
+#ifndef FRONTEND_INCLUDE_NODE_HPP
+#define FRONTEND_INCLUDE_NODE_HPP
 
 #include "config.hpp"
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace language {
@@ -325,4 +324,4 @@ class Variable final : public Expression {
 
 } // namespace language
 
-#endif // FRONTEND_INCLUDE_AST_HPP
+#endif // FRONTEND_INCLUDE_NODE_HPP
