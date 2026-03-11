@@ -225,7 +225,27 @@ void Code_generator::visit(If_stmt &node) {
     builder_.SetInsertPoint(merge_bb);
 }
 
-void Code_generator::visit(While_stmt &node) {}
+void Code_generator::visit(While_stmt &node) {
+    auto *cond_bb = llvm::BasicBlock::Create(context_, "cond_loop", current_function_);
+
+    builder_.SetInsertPoint(cond_bb);
+
+    node.get_condition().accept(*this);
+
+    llvm::Value *cond = builder_.CreateICmpNE(last_value_, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
+
+    auto *body_bb = llvm::BasicBlock::Create(context_, "body_loop", current_function_);
+    auto *end_loop_bb = llvm::BasicBlock::Create(context_, "end_loop", current_function_);
+
+    last_value_ = builder_.CreateCondBr(cond, body_bb, end_loop_bb);
+
+    builder_.SetInsertPoint(body_bb);
+    node.get_body().accept(*this);
+
+    last_value_ = builder_.CreateBr(cond_bb);
+
+    builder_.SetInsertPoint(end_loop_bb);
+}
 
 void Code_generator::visit(Func &node) {}
 void Code_generator::visit(Call &node) {}
