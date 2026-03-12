@@ -1,7 +1,7 @@
 #ifndef FRONTEND_INCLUDE_CONFIG_HPP
 #define FRONTEND_INCLUDE_CONFIG_HPP
 
-#include <llvm-18/llvm/IR/Instructions.h>
+#include <llvm/IR/Instructions.h>
 #include <string>
 #include <string_view>
 #include <unordered_set>

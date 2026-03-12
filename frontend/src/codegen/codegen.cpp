@@ -1,12 +1,12 @@
 #include "codegen/codegen.hpp"
 #include "node.hpp"
 #include <iostream>
-#include <llvm-18/llvm/IR/BasicBlock.h>
-#include <llvm-18/llvm/IR/Constants.h>
-#include <llvm-18/llvm/IR/DerivedTypes.h>
-#include <llvm-18/llvm/IR/Function.h>
-#include <llvm-18/llvm/IR/Type.h>
-#include <llvm-18/llvm/IR/Value.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
 
 namespace language {
 
