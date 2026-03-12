@@ -19,11 +19,10 @@ Code_generator::Code_generator(const std::string &module_name)
     module_.setTargetTriple(llvm::sys::getProcessTriple());
 }
 
-void Code_generator::print() const {
-    module_.print(llvm::outs(), nullptr);
-}
+void Code_generator::print() const { module_.print(llvm::outs(), nullptr); }
 
-void Code_generator::compile(const std::string& ir_file, const std::string& exe_file) {
+void Code_generator::compile(const std::string &ir_file,
+                             const std::string &exe_file) {
     std::error_code EC;
     llvm::raw_fd_ostream OS(ir_file, EC);
     module_.print(OS, nullptr);
@@ -36,11 +35,8 @@ void Code_generator::visit(Program &node) {
     auto *main_ty =
         llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
 
-    auto *main_func =
-        llvm::Function::Create(main_ty,
-                               llvm::Function::ExternalLinkage,
-                               "main",
-                               module_);
+    auto *main_func = llvm::Function::Create(
+        main_ty, llvm::Function::ExternalLinkage, "main", module_);
 
     auto *entry_bb = llvm::BasicBlock::Create(context_, "entry", main_func);
 
@@ -53,7 +49,8 @@ void Code_generator::visit(Program &node) {
     }
 
     if (!builder_.GetInsertBlock()->getTerminator()) {
-        llvm::Value *zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0);
+        llvm::Value *zero =
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0);
         builder_.CreateRet(zero);
     }
 }
@@ -80,11 +77,7 @@ void Code_generator::visit(Assignment_expr &node) {
         llvm::Function *func = builder_.GetInsertBlock()->getParent();
         llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(),
                                      func->getEntryBlock().begin());
-        alloca = tmpBuilder.CreateAlloca(
-            value_type,
-            nullptr,
-            var_name
-        );
+        alloca = tmpBuilder.CreateAlloca(value_type, nullptr, var_name);
 
         scope_stack_.declare(var_name, alloca);
     }
@@ -236,17 +229,10 @@ void Code_generator::visit(Input &node) {
     llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d", "scanf_fmt");
     llvm::FunctionCallee scanf_func = get_scanf();
 
-    builder_.CreateCall(
-        scanf_func,
-        {format_str, alloca},
-        "scanfcall"
-    );
+    builder_.CreateCall(scanf_func, {format_str, alloca}, "scanfcall");
 
-    last_value_ = builder_.CreateLoad(
-        alloca->getAllocatedType(),
-        alloca,
-        var_name
-    );
+    last_value_ =
+        builder_.CreateLoad(alloca->getAllocatedType(), alloca, var_name);
 }
 
 void Code_generator::visit(Print_stmt &node) {
@@ -254,32 +240,33 @@ void Code_generator::visit(Print_stmt &node) {
 
     llvm::Value *value_to_print = last_value_;
 
-    llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d\n", "print_fmt");
+    llvm::Value *format_str =
+        builder_.CreateGlobalStringPtr("%d\n", "print_fmt");
     llvm::FunctionCallee printf_func = get_printf();
 
-    last_value_ = builder_.CreateCall(
-        printf_func,
-        {format_str, value_to_print},
-        "printfcall"
-    );
+    last_value_ = builder_.CreateCall(printf_func, {format_str, value_to_print},
+                                      "printfcall");
 }
 
 void Code_generator::visit(If_stmt &node) {
     node.get_condition().accept(*this);
 
-    llvm::Value *cond = builder_.CreateICmpNE(last_value_,
+    llvm::Value *cond = builder_.CreateICmpNE(
+        last_value_,
         llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
 
-    auto *then_bb = llvm::BasicBlock::Create(context_, "then", current_function_);
+    auto *then_bb =
+        llvm::BasicBlock::Create(context_, "then", current_function_);
 
     bool contains_else = node.contains_else_branch();
 
-    llvm::BasicBlock* else_bb = nullptr;
+    llvm::BasicBlock *else_bb = nullptr;
 
     if (contains_else)
         else_bb = llvm::BasicBlock::Create(context_, "else", current_function_);
 
-    auto merge_bb = llvm::BasicBlock::Create(context_, "ifcont", current_function_);
+    auto merge_bb =
+        llvm::BasicBlock::Create(context_, "ifcont", current_function_);
 
     if (contains_else)
         last_value_ = builder_.CreateCondBr(cond, then_bb, else_bb);
@@ -302,7 +289,8 @@ void Code_generator::visit(If_stmt &node) {
 }
 
 void Code_generator::visit(While_stmt &node) {
-    auto *cond_bb = llvm::BasicBlock::Create(context_, "cond_loop", current_function_);
+    auto *cond_bb =
+        llvm::BasicBlock::Create(context_, "cond_loop", current_function_);
 
     last_value_ = builder_.CreateBr(cond_bb);
 
@@ -310,10 +298,14 @@ void Code_generator::visit(While_stmt &node) {
 
     node.get_condition().accept(*this);
 
-    llvm::Value *cond = builder_.CreateICmpNE(last_value_, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
+    llvm::Value *cond = builder_.CreateICmpNE(
+        last_value_,
+        llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
 
-    auto *body_bb = llvm::BasicBlock::Create(context_, "body_loop", current_function_);
-    auto *end_loop_bb = llvm::BasicBlock::Create(context_, "end_loop", current_function_);
+    auto *body_bb =
+        llvm::BasicBlock::Create(context_, "body_loop", current_function_);
+    auto *end_loop_bb =
+        llvm::BasicBlock::Create(context_, "end_loop", current_function_);
 
     last_value_ = builder_.CreateCondBr(cond, body_bb, end_loop_bb);
 
@@ -334,11 +326,9 @@ void Code_generator::visit(Func &node) {
     }
 
     llvm::Type *return_type = llvm::Type::getInt32Ty(context_);
-    llvm::FunctionType *func_type = llvm::FunctionType::get(
-        return_type,
-        param_types,
-        /*isVarArg=*/false
-    );
+    llvm::FunctionType *func_type =
+        llvm::FunctionType::get(return_type, param_types,
+                                /*isVarArg=*/false);
 
     std::string func_name;
     if (node.has_name()) {
@@ -347,17 +337,14 @@ void Code_generator::visit(Func &node) {
         func_name = "func_" + std::to_string(func_counter_++);
     }
     llvm::Function *llvm_func = llvm::Function::Create(
-        func_type,
-        llvm::Function::ExternalLinkage,
-        func_name,
-        module_
-    );
+        func_type, llvm::Function::ExternalLinkage, func_name, module_);
 
     functions_[func_name] = llvm_func;
     auto *saved_function = current_function_;
     auto *saved_insert_bb = builder_.GetInsertBlock();
 
-    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(context_, "entry", llvm_func);
+    llvm::BasicBlock *entry_bb =
+        llvm::BasicBlock::Create(context_, "entry", llvm_func);
 
     builder_.SetInsertPoint(entry_bb);
 
@@ -369,11 +356,8 @@ void Code_generator::visit(Func &node) {
     for (auto &arg : llvm_func->args()) {
         std::string param_name = std::string(params[param_index]);
 
-        auto *alloca = builder_.CreateAlloca(
-            llvm::Type::getInt32Ty(context_),
-            nullptr,
-            param_name
-        );
+        auto *alloca = builder_.CreateAlloca(llvm::Type::getInt32Ty(context_),
+                                             nullptr, param_name);
         builder_.CreateStore(&arg, alloca);
 
         scope_stack_.declare(param_name, alloca);
@@ -411,23 +395,16 @@ void Code_generator::visit(Call &node) {
     if (auto *func = llvm::dyn_cast<llvm::Function>(func_ptr)) {
         func_type = func->getFunctionType();
     } else {
-        std::vector<llvm::Type *> param_types(
-            arg_values.size(),
-            llvm::Type::getInt32Ty(context_)
-        );
-        func_type = llvm::FunctionType::get(
-            llvm::Type::getInt32Ty(context_),
-            param_types,
-            /*isVarArg=*/false
-        );
+        std::vector<llvm::Type *> param_types(arg_values.size(),
+                                              llvm::Type::getInt32Ty(context_));
+        func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(context_),
+                                            param_types,
+                                            /*isVarArg=*/false);
     }
 
     llvm::CallInst *call_inst = builder_.CreateCall(
-        func_type,
-        func_ptr,
-        llvm::ArrayRef<llvm::Value *>(arg_values),
-        "calltmp"
-    );
+        func_type, func_ptr, llvm::ArrayRef<llvm::Value *>(arg_values),
+        "calltmp");
 
     last_value_ = call_inst;
 }
@@ -439,17 +416,13 @@ void Code_generator::visit(Return_stmt &node) {
 
         builder_.CreateRet(ret_val);
     } else {
-        llvm::Value *zero = llvm::ConstantInt::get(
-            llvm::Type::getInt32Ty(context_),
-            0
-        );
+        llvm::Value *zero =
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0);
         builder_.CreateRet(zero);
     }
 }
 
-void Code_generator::visit(Expr_stmt &node) {
-    node.get_expr().accept(*this);
-}
+void Code_generator::visit(Expr_stmt &node) { node.get_expr().accept(*this); }
 
 void Code_generator::visit(Number &node) {
     last_value_ = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_),
@@ -460,11 +433,19 @@ void Code_generator::visit(Variable &node) {
     auto var_name = std::string(node.get_name());
     llvm::AllocaInst *alloca = scope_stack_.lookup(var_name);
 
-    if (!alloca)
-        throw std::runtime_error("use of undeclared variable: " + var_name);
+    if (alloca) {
+        last_value_ =
+            builder_.CreateLoad(alloca->getAllocatedType(), alloca, var_name);
+        return;
+    }
 
-    last_value_ =
-        builder_.CreateLoad(alloca->getAllocatedType(), alloca, var_name);
+    auto func_it = functions_.find(var_name);
+    if (func_it != functions_.end()) {
+        last_value_ = func_it->second;
+        return;
+    }
+
+    throw std::runtime_error("use of undeclared variable: " + var_name);
 }
 
 void Code_generator::visit(Empty_stmt &node) {
@@ -479,12 +460,8 @@ llvm::FunctionCallee Code_generator::get_func(const std::string &name) {
     return module_.getOrInsertFunction(name, type);
 }
 
-llvm::FunctionCallee Code_generator::get_printf() {
-    return get_func("printf");
-}
+llvm::FunctionCallee Code_generator::get_printf() { return get_func("printf"); }
 
-llvm::FunctionCallee Code_generator::get_scanf() {
-    return get_func("scanf");
-}
+llvm::FunctionCallee Code_generator::get_scanf() { return get_func("scanf"); }
 
 } // namespace language

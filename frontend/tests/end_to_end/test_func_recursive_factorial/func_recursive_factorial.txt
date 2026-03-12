@@ -1,0 +1,9 @@
+fact = func(n) : factorial {
+    if (n <= 1)
+        return 1;
+    res = n * factorial(n - 1);
+    res;
+};
+
+result = fact(5);
+print result;
