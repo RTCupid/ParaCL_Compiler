@@ -35,7 +35,6 @@ make_compile_paths(std::string_view basename = "out",
     return {base / (stem + ".ll"), base / (stem)};
 }
 
-
 } // namespace language
 
 #endif // IR_PATH_GEN_HPP

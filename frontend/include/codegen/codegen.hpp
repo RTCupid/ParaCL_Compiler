@@ -36,7 +36,7 @@ class Code_generator final : public ASTVisitor {
   public:
     Code_generator(const std::string &module_name);
     void print() const;
-    void compile(const std::string& ir_file, const std::string& exe_file);
+    void compile(const std::string &ir_file, const std::string &exe_file);
 
     void visit(Program &node) override;
     void visit(Block_stmt &node) override;
@@ -62,7 +62,7 @@ class Code_generator final : public ASTVisitor {
     void visit(Return_stmt &node) override;
     void visit(Expr_stmt &node) override;
 
-private:
+  private:
     llvm::FunctionCallee get_func(const std::string &name);
     llvm::FunctionCallee get_printf();
     llvm::FunctionCallee get_scanf();

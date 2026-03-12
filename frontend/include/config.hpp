@@ -17,7 +17,7 @@ using nametable_t = std::unordered_set<name_t>;
 
 using symbol_table_t = std::unordered_map<name_t, llvm::AllocaInst *>;
 
-using functions_table_t = std::unordered_map<std::string, llvm::Function*>;
+using functions_table_t = std::unordered_map<std::string, llvm::Function *>;
 
 class Program;
 
