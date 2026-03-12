@@ -28,6 +28,7 @@ class Code_generator final : public ASTVisitor {
     Scope_stack scope_stack_;
 
     llvm::Function *current_function_ = nullptr;
+    functions_table_t functions_;
 
     llvm::Value *last_value_;
 
