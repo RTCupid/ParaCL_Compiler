@@ -56,11 +56,11 @@ void driver(int argc, const char **argv) {
     language::Simulator simulator{};
     root->accept(simulator);
 #else
-    const auto compile_paths = language::make_compile_paths();
+    const std::string& module_name = argv[1];
+    const auto compile_paths = language::make_compile_paths(module_name);
     const std::string ir_file = compile_paths.ll.string();
     const std::string exe_file = compile_paths.exe.string();
 
-    const std::string& module_name = argv[1];
     language::Code_generator generator{module_name};
     root->accept(generator);
 

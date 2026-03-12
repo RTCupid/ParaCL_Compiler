@@ -15,6 +15,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <llvm/IR/Instructions.h>
 #include <llvm/TargetParser/Host.h>
+#include <iostream>
 
 namespace language {
 
