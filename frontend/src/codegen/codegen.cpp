@@ -1,9 +1,9 @@
 #include "codegen/codegen.hpp"
 #include "node.hpp"
 #include <iostream>
-#include <llvm-18/llvm/ADT/ArrayRef.h>
-#include <llvm-18/llvm/IR/Instructions.h>
-#include <llvm-18/llvm/Support/Casting.h>
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/Support/Casting.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
