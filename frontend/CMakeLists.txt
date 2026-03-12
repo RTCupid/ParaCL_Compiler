@@ -83,6 +83,6 @@ target_compile_definitions(frontend PRIVATE
     ${LLVM_DEFINITIONS}
 )
 
-target_link_libraries(frontend PRIVATE ${LLVM_LIBS})
+target_link_libraries(frontend PRIVATE ${LLVM_LIBS} frontend::headers)
 
 add_subdirectory(tests)
