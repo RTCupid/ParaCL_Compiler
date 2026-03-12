@@ -1,6 +1,9 @@
 #include "codegen/codegen.hpp"
 #include "node.hpp"
 #include <iostream>
+#include <llvm-18/llvm/ADT/ArrayRef.h>
+#include <llvm-18/llvm/IR/Instructions.h>
+#include <llvm-18/llvm/Support/Casting.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -69,14 +72,19 @@ void Code_generator::visit(Assignment_expr &node) {
     node.get_value().accept(*this);
     auto value = last_value_;
 
+    llvm::Type *value_type = value->getType();
+
     auto alloca = scope_stack_.lookup(var_name);
 
     if (!alloca) {
         llvm::Function *func = builder_.GetInsertBlock()->getParent();
         llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(),
                                      func->getEntryBlock().begin());
-        alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt32Ty(context_),
-                                         nullptr, var_name);
+        alloca = tmpBuilder.CreateAlloca(
+            value_type,
+            nullptr,
+            var_name
+        );
 
         scope_stack_.declare(var_name, alloca);
     }
@@ -321,7 +329,7 @@ void Code_generator::visit(Func &node) {
     std::vector<llvm::Type *> param_types;
     const auto &params = node.get_params();
 
-    for (size_t i = 0, params_size = params.size(); i < params_size; ++i) {
+    for (std::size_t i = 0, params_size = params.size(); i < params_size; ++i) {
         param_types.push_back(llvm::Type::getInt32Ty(context_));
     }
 
@@ -346,10 +354,83 @@ void Code_generator::visit(Func &node) {
     );
 
     functions_[func_name] = llvm_func;
-    llvm::Function *saved_function = current_function_;
+    auto *saved_function = current_function_;
+    auto *saved_insert_bb = builder_.GetInsertBlock();
+
+    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(context_, "entry", llvm_func);
+
+    builder_.SetInsertPoint(entry_bb);
+
+    current_function_ = llvm_func;
+
+    scope_stack_.push();
+
+    std::size_t param_index = 0;
+    for (auto &arg : llvm_func->args()) {
+        std::string param_name = std::string(params[param_index]);
+
+        auto *alloca = builder_.CreateAlloca(
+            llvm::Type::getInt32Ty(context_),
+            nullptr,
+            param_name
+        );
+        builder_.CreateStore(&arg, alloca);
+
+        scope_stack_.declare(param_name, alloca);
+        ++param_index;
+    }
+
+    node.get_body().accept(*this);
+
+    if (!builder_.GetInsertBlock()->getTerminator())
+        builder_.CreateRet(last_value_);
+
+    scope_stack_.pop();
+    current_function_ = saved_function;
+
+    if (saved_insert_bb)
+        builder_.SetInsertPoint(saved_insert_bb);
+
+    last_value_ = llvm_func;
 }
 
-void Code_generator::visit(Call &node) {}
+void Code_generator::visit(Call &node) {
+    node.get_target().accept(*this);
+    llvm::Value *func_ptr = last_value_;
+
+    std::vector<llvm::Value *> arg_values;
+    const auto &args = node.get_args();
+
+    for (auto &arg_expr : args) {
+        arg_expr->accept(*this);
+        arg_values.push_back(last_value_);
+    }
+
+    llvm::FunctionType *func_type = nullptr;
+
+    if (auto *func = llvm::dyn_cast<llvm::Function>(func_ptr)) {
+        func_type = func->getFunctionType();
+    } else {
+        std::vector<llvm::Type *> param_types(
+            arg_values.size(),
+            llvm::Type::getInt32Ty(context_)
+        );
+        func_type = llvm::FunctionType::get(
+            llvm::Type::getInt32Ty(context_),
+            param_types,
+            /*isVarArg=*/false
+        );
+    }
+
+    llvm::CallInst *call_inst = builder_.CreateCall(
+        func_type,
+        func_ptr,
+        llvm::ArrayRef<llvm::Value *>(arg_values),
+        "calltmp"
+    );
+
+    last_value_ = call_inst;
+}
 
 void Code_generator::visit(Return_stmt &node) {
     if (node.has_value()) {
