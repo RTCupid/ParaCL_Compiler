@@ -1,11 +1,12 @@
 #include "simulator/expr_evaluator.hpp"
 #include "simulator/simulator.hpp"
+#include "simulator/helpers.hpp"
 #include <iostream>
 #include <string>
 
 namespace language {
 
-number_t Expression_evaluator::get_result() const noexcept { return result_; }
+value_t Expression_evaluator::get_result() const noexcept { return result_; }
 
 void Expression_evaluator::visit(Number &node) { result_ = node.get_value(); }
 
@@ -39,75 +40,75 @@ void Expression_evaluator::visit(Assignment_expr &node) {
 void Expression_evaluator::visit(Binary_operator &node) {
     Expression_evaluator left_eval{simulator_};
     node.get_left().accept(left_eval);
-    auto left_value = left_eval.result_;
+    auto left_num = expect_number(left_eval.result_, "Binary operator");
 
     Expression_evaluator right_eval{simulator_};
     node.get_right().accept(right_eval);
-    auto right_value = right_eval.result_;
+    auto right_num = expect_number(right_eval.result_, "Binary operator");
 
     switch (node.get_operator()) {
     case Binary_operators::Eq: {
-        result_ = (left_value == right_value);
+        result_ = (left_num == right_num);
         break;
     }
     case Binary_operators::Neq: {
-        result_ = (left_value != right_value);
+        result_ = (left_num != right_num);
         break;
     }
     case Binary_operators::Less: {
-        result_ = (left_value < right_value);
+        result_ = (left_num < right_num);
         break;
     }
     case Binary_operators::LessEq: {
-        result_ = (left_value <= right_value);
+        result_ = (left_num <= right_num);
         break;
     }
     case Binary_operators::Greater: {
-        result_ = (left_value > right_value);
+        result_ = (left_num > right_num);
         break;
     }
     case Binary_operators::GreaterEq: {
-        result_ = (left_value >= right_value);
+        result_ = (left_num >= right_num);
         break;
     }
     case Binary_operators::Add: {
-        result_ = left_value + right_value;
+        result_ = left_num + right_num;
         break;
     }
     case Binary_operators::Sub: {
-        result_ = left_value - right_value;
+        result_ = left_num - right_num;
         break;
     }
     case Binary_operators::Mul: {
-        result_ = left_value * right_value;
+        result_ = left_num * right_num;
         break;
     }
     case Binary_operators::Div: {
-        result_ = left_value / right_value;
+        result_ = left_num / right_num;
         break;
     }
     case Binary_operators::RemDiv: {
-        result_ = left_value % right_value;
+        result_ = left_num % right_num;
         break;
     }
     case Binary_operators::And: {
-        result_ = left_value & right_value;
+        result_ = left_num & right_num;
         break;
     }
     case Binary_operators::Xor: {
-        result_ = left_value ^ right_value;
+        result_ = left_num ^ right_num;
         break;
     }
     case Binary_operators::Or: {
-        result_ = left_value | right_value;
+        result_ = left_num | right_num;
         break;
     }
     case Binary_operators::LogOr: {
-        result_ = left_value || right_value;
+        result_ = left_num || right_num;
         break;
     }
     case Binary_operators::LogAnd: {
-        result_ = left_value && right_value;
+        result_ = left_num && right_num;
         break;
     }
     default:
@@ -118,18 +119,19 @@ void Expression_evaluator::visit(Binary_operator &node) {
 void Expression_evaluator::visit(Unary_operator &node) {
     Expression_evaluator eval{simulator_};
     node.get_operand().accept(eval);
-    auto value = eval.result_;
+    auto num = expect_number(eval.result_, "Unary operator");
+
     switch (node.get_operator()) {
     case Unary_operators::Neg: {
-        result_ = -(value);
+        result_ = -(num);
         break;
     }
     case Unary_operators::Plus: {
-        result_ = value;
+        result_ = num;
         break;
     }
     case Unary_operators::Not: {
-        result_ = !value;
+        result_ = !num;
         break;
     }
     default:

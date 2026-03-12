@@ -1,6 +1,7 @@
 #include "simulator/simulator.hpp"
 #include "node.hpp"
 #include "simulator/expr_evaluator.hpp"
+#include "simulator/helpers.hpp"
 #include <iostream>
 
 namespace language {
@@ -24,9 +25,9 @@ void Simulator::visit(Block_stmt &node) {
 void Simulator::visit(Empty_stmt &node) {};
 
 void Simulator::visit(If_stmt &node) {
-    auto condition = evaluate_expression(node.get_condition());
+    auto condition = expect_number(evaluate_expression(node.get_condition()), "If");
 
-    if (condition != 0) {
+    if (condition) {
         node.then_branch().accept(*this);
     } else {
         const bool contains_else_node = node.contains_else_branch();
@@ -37,15 +38,14 @@ void Simulator::visit(If_stmt &node) {
 }
 
 void Simulator::visit(While_stmt &node) {
-    while (evaluate_expression(node.get_condition())) {
+    while (expect_number(evaluate_expression(node.get_condition()), "While")) {
         node.get_body().accept(*this);
     }
 }
 
 void Simulator::visit(Print_stmt &node) {
-    auto value = evaluate_expression(node.get_value());
-
-    std::cout << value << '\n';
+    auto number = expect_number(evaluate_expression(node.get_value()), "Print");
+    std::cout << number << '\n';
 }
 
 void Simulator::visit(Assignment_expr &node) {}
@@ -61,7 +61,7 @@ void Simulator::visit(Return_stmt &node) {}
 
 void Simulator::visit(Expr_stmt &node) { evaluate_expression(node.get_expr()); }
 
-number_t Simulator::evaluate_expression(Expression &expression) {
+value_t Simulator::evaluate_expression(Expression &expression) {
     Expression_evaluator evaluator(*this);
     expression.accept(evaluator);
     return evaluator.get_result();

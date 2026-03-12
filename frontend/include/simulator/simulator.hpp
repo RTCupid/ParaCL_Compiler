@@ -9,7 +9,7 @@ namespace language {
 
 class Simulator final : public ASTVisitor {
 
-    using nametable_t = std::unordered_map<std::string, number_t>;
+    using nametable_t = std::unordered_map<std::string, value_t>;
     nametable_t nametable_;
 
   public:
@@ -40,7 +40,7 @@ class Simulator final : public ASTVisitor {
     void visit(Expr_stmt &node) override;
 
   private:
-    number_t evaluate_expression(Expression &expression);
+    value_t evaluate_expression(Expression &expression);
 };
 
 } // namespace language

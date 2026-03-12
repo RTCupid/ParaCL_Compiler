@@ -8,12 +8,12 @@ namespace language {
 class Expression_evaluator final : public ASTVisitor {
   private:
     Simulator &simulator_;
-    number_t result_{0};
+    value_t result_{};
 
   public:
     Expression_evaluator(Simulator &simulator) : simulator_{simulator} {};
 
-    number_t get_result() const noexcept;
+    value_t get_result() const noexcept;
 
     void visit(Number &node) override;
 
