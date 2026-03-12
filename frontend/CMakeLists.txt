@@ -78,6 +78,7 @@ target_include_directories(frontend PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/parser
     ${CMAKE_CURRENT_SOURCE_DIR}/include/codegen
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${LLVM_INCLUDE_DIRS}
 )
 
 target_compile_definitions(frontend PRIVATE
