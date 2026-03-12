@@ -32,23 +32,9 @@ class Code_generator final : public ASTVisitor {
     llvm::Value *last_value_;
 
   public:
-    Code_generator(const std::string &module_name)
-        : module_{module_name, context_}, builder_{context_} {
-        module_.setTargetTriple(llvm::sys::getProcessTriple());
-    }
-
-    void print() const {
-        module_.print(llvm::outs(), nullptr);
-    }
-
-    void compile(const std::string& ir_file, const std::string& exe_file) {
-        std::error_code EC;
-        llvm::raw_fd_ostream OS(ir_file, EC);
-        module_.print(OS, nullptr);
-
-        std::string cmd = "clang " + ir_file + " -o " + exe_file;
-        int result = std::system(cmd.c_str());
-    }
+    Code_generator(const std::string &module_name);
+    void print() const;
+    void compile(const std::string& ir_file, const std::string& exe_file);
 
     void visit(Program &node) override;
     void visit(Block_stmt &node) override;

@@ -10,14 +10,32 @@
 
 namespace language {
 
+Code_generator::Code_generator(const std::string &module_name)
+    : module_{module_name, context_}, builder_{context_} {
+    module_.setTargetTriple(llvm::sys::getProcessTriple());
+}
+
+void Code_generator::print() const {
+    module_.print(llvm::outs(), nullptr);
+}
+
+void Code_generator::compile(const std::string& ir_file, const std::string& exe_file) {
+    std::error_code EC;
+    llvm::raw_fd_ostream OS(ir_file, EC);
+    module_.print(OS, nullptr);
+
+    std::string cmd = "clang " + ir_file + " -o " + exe_file;
+    int result = std::system(cmd.c_str());
+}
+
 void Code_generator::visit(Program &node) {
-    auto *main_ty = 
+    auto *main_ty =
         llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
 
-    auto *main_func = 
-        llvm::Function::Create(main_ty, 
-                               llvm::Function::ExternalLinkage, 
-                               "main", 
+    auto *main_func =
+        llvm::Function::Create(main_ty,
+                               llvm::Function::ExternalLinkage,
+                               "main",
                                module_);
 
     auto *entry_bb = llvm::BasicBlock::Create(context_, "entry", main_func);
@@ -240,7 +258,7 @@ void Code_generator::visit(Print_stmt &node) {
 void Code_generator::visit(If_stmt &node) {
     node.get_condition().accept(*this);
 
-    llvm::Value *cond = builder_.CreateICmpNE(last_value_, 
+    llvm::Value *cond = builder_.CreateICmpNE(last_value_,
         llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
 
     auto *then_bb = llvm::BasicBlock::Create(context_, "then", current_function_);
