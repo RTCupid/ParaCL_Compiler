@@ -2,14 +2,14 @@
 #include "node.hpp"
 #include <iostream>
 #include <llvm/ADT/ArrayRef.h>
-#include <llvm/IR/Instructions.h>
-#include <llvm/Support/Casting.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Support/Casting.h>
 #include <string>
 
 namespace language {
