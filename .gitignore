@@ -5,3 +5,4 @@ frontend/build
 dump
 grammar.txt
 tmp
+compile_out/
