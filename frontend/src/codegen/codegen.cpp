@@ -7,6 +7,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <string>
 
 namespace language {
 
@@ -316,9 +317,54 @@ void Code_generator::visit(While_stmt &node) {
     builder_.SetInsertPoint(end_loop_bb);
 }
 
-void Code_generator::visit(Func &node) {}
+void Code_generator::visit(Func &node) {
+    std::vector<llvm::Type *> param_types;
+    const auto &params = node.get_params();
+
+    for (size_t i = 0, params_size = params.size(); i < params_size; ++i) {
+        param_types.push_back(llvm::Type::getInt32Ty(context_));
+    }
+
+    llvm::Type *return_type = llvm::Type::getInt32Ty(context_);
+    llvm::FunctionType *func_type = llvm::FunctionType::get(
+        return_type,
+        param_types,
+        /*isVarArg=*/false
+    );
+
+    std::string func_name;
+    if (node.has_name()) {
+        func_name = std::string(node.get_func_name().value());
+    } else {
+        func_name = "func_" + std::to_string(func_counter_++);
+    }
+    llvm::Function *llvm_func = llvm::Function::Create(
+        func_type,
+        llvm::Function::ExternalLinkage,
+        func_name,
+        module_
+    );
+
+    functions_[func_name] = llvm_func;
+    llvm::Function *saved_function = current_function_;
+}
+
 void Code_generator::visit(Call &node) {}
-void Code_generator::visit(Return_stmt &node) {}
+
+void Code_generator::visit(Return_stmt &node) {
+    if (node.has_value()) {
+        node.get_value().accept(*this);
+        llvm::Value *ret_val = last_value_;
+
+        builder_.CreateRet(ret_val);
+    } else {
+        llvm::Value *zero = llvm::ConstantInt::get(
+            llvm::Type::getInt32Ty(context_),
+            0
+        );
+        builder_.CreateRet(zero);
+    }
+}
 
 void Code_generator::visit(Expr_stmt &node) {
     node.get_expr().accept(*this);

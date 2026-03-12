@@ -12,10 +12,9 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
-#include "llvm/Support/raw_ostream.h"
+#include <cstddef>
 #include <llvm/IR/Instructions.h>
 #include <llvm/TargetParser/Host.h>
-#include <iostream>
 
 namespace language {
 
@@ -29,6 +28,8 @@ class Code_generator final : public ASTVisitor {
 
     llvm::Function *current_function_ = nullptr;
     functions_table_t functions_;
+
+    std::size_t func_counter_ = 0;
 
     llvm::Value *last_value_;
 
