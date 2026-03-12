@@ -11,8 +11,14 @@
 namespace language {
 
 void Code_generator::visit(Program &node) {
-    auto *main_ty = llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
-    auto *main_func = llvm::Function::Create(main_ty, llvm::Function::ExternalLinkage, "main", module_);
+    auto *main_ty = 
+        llvm::FunctionType::get(llvm::Type::getInt32Ty(context_), false);
+
+    auto *main_func = 
+        llvm::Function::Create(main_ty, 
+                               llvm::Function::ExternalLinkage, 
+                               "main", 
+                               module_);
 
     auto *entry_bb = llvm::BasicBlock::Create(context_, "entry", main_func);
 
@@ -186,13 +192,56 @@ void Code_generator::visit(Unary_operator &node) {
     }
 }
 
-void Code_generator::visit(Input &node) {}
-void Code_generator::visit(Print_stmt &node) {}
+void Code_generator::visit(Input &node) {
+    std::string var_name = "__input_var";
+    llvm::AllocaInst *alloca = scope_stack_.lookup(var_name);
+
+    if (!alloca) {
+        llvm::Function *func = builder_.GetInsertBlock()->getParent();
+        llvm::IRBuilder<> tmpBuilder(&func->getEntryBlock(),
+                                     func->getEntryBlock().begin());
+        alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt32Ty(context_),
+                                         nullptr, var_name);
+
+        scope_stack_.declare(var_name, alloca);
+    }
+
+    llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d", "scanf_fmt");
+    llvm::FunctionCallee scanf_func = get_scanf();
+
+    builder_.CreateCall(
+        scanf_func,
+        {format_str, alloca},
+        "scanfcall"
+    );
+
+    last_value_ = builder_.CreateLoad(
+        alloca->getAllocatedType(),
+        alloca,
+        var_name
+    );
+}
+
+void Code_generator::visit(Print_stmt &node) {
+    node.get_value().accept(*this);
+
+    llvm::Value *value_to_print = last_value_;
+
+    llvm::Value *format_str = builder_.CreateGlobalStringPtr("%d\n", "print_fmt");
+    llvm::FunctionCallee printf_func = get_printf();
+
+    last_value_ = builder_.CreateCall(
+        printf_func,
+        {format_str, value_to_print},
+        "printfcall"
+    );
+}
 
 void Code_generator::visit(If_stmt &node) {
     node.get_condition().accept(*this);
 
-    llvm::Value *cond = builder_.CreateICmpNE(last_value_, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
+    llvm::Value *cond = builder_.CreateICmpNE(last_value_, 
+        llvm::ConstantInt::get(llvm::Type::getInt32Ty(context_), 0), "ifcond");
 
     auto *then_bb = llvm::BasicBlock::Create(context_, "then", current_function_);
 
@@ -276,5 +325,21 @@ void Code_generator::visit(Variable &node) {
 void Code_generator::visit(Empty_stmt &node) {
     // nothing needs to be done
 };
+
+llvm::FunctionCallee Code_generator::get_func(const std::string &name) {
+    auto type = llvm::FunctionType::get(
+        llvm::Type::getInt32Ty(context_),
+        llvm::PointerType::get(llvm::Type::getInt8Ty(context_), 0), true);
+
+    return module_.getOrInsertFunction(name, type);
+}
+
+llvm::FunctionCallee Code_generator::get_printf() {
+    return get_func("printf");
+}
+
+llvm::FunctionCallee Code_generator::get_scanf() {
+    return get_func("scanf");
+}
 
 } // namespace language

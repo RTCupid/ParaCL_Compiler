@@ -3,6 +3,7 @@
 build
 frontend/build
 dump
+compile_out
 grammar.txt
 tmp
 compile_out/
