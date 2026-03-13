@@ -38,6 +38,7 @@
 - [Error collector implementation](#error-collector-implementation)
 - [Scope implementation](#scope-implementation)
 - [Simulator implementation](#simulator-implementation)
+- [LLVM IR generator implementation](#llvm-ir-generator-implementation)
 
 `Additional:`
 - [Using dump](#using-dump)
@@ -777,6 +778,35 @@ number_t Simulator::evaluate_expression(Expression &expression) {
 </details>
 
 `ExpressionEvaluator` specializes only in expression evaluation, contains the `result_` field for storing the expression result, and `simulator_` - a reference to the simulator from which it was called, to have access to the name table.
+
+## LLVM IR generator implementation
+The LLVM IR generator for ParaCL uses the `Visitor` pattern to traverse the `AST` and produce LLVM intermediate representation code. The `Code_generator` class inherits from `ASTVisitor` and implements `visit` methods for each node type in the syntax tree.
+
+<details>
+<summary>LLVM IR generator class</summary>
+
+```C++
+class Code_generator final : public ASTVisitor {
+  private:
+    llvm::LLVMContext context_;
+    llvm::Module module_;
+    llvm::IRBuilder<> builder_;
+
+    Scope_stack scope_stack_;
+    llvm::Function *current_function_ = nullptr;
+    functions_table_t functions_;
+    std::size_t func_counter_ = 0;
+
+    llvm::Value *last_value_;
+  public:
+    Code_generator(const std::string &module_name);
+    void print() const;
+    void compile(const std::string &ir_file, const std::string &exe_file);
+
+    void visit(Program &node) override;
+    // other visit methods
+```
+</details>
 
 ## Using dump
 To enable the graph dump option for the tree, you need to set the `-GRAPH_DUMP` flag, which is disabled by default:
