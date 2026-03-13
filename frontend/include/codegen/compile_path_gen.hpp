@@ -17,7 +17,7 @@ inline std::filesystem::path default_compl_out_dir() {
     std::error_code ec;
     auto cwd = std::filesystem::current_path(ec);
     if (!ec)
-        return cwd / "compile_out";
+        return cwd / "build/compile_out";
 
     return std::filesystem::temp_directory_path() / "compile_out";
 }
@@ -26,10 +26,14 @@ inline Compile_paths
 make_compile_paths(std::string_view basename = "out",
                    std::filesystem::path base = default_compl_out_dir()) {
     std::filesystem::create_directories(base);
-    std::string s(basename);
-    return {base / (s + ".ll"), base / (s)};
-}
+    std::string stem = std::filesystem::path(basename).stem().string();
 
+    if (stem.empty()) {
+        stem = "out";
+    }
+
+    return {base / (stem + ".ll"), base / (stem)};
+}
 
 } // namespace language
 

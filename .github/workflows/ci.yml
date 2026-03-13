@@ -35,8 +35,8 @@ jobs:
         git push
 
   build-and-test:
-  runs-on: ubuntu-22.04
-  steps:
+    runs-on: ubuntu-22.04
+    steps:
     - uses: actions/checkout@v4
 
     - name: Install LLVM and Clang

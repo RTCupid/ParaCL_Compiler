@@ -12,7 +12,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
-#include "llvm/Support/raw_ostream.h"
+#include <cstddef>
 #include <llvm/IR/Instructions.h>
 #include <llvm/TargetParser/Host.h>
 
@@ -27,27 +27,16 @@ class Code_generator final : public ASTVisitor {
     Scope_stack scope_stack_;
 
     llvm::Function *current_function_ = nullptr;
+    functions_table_t functions_;
+
+    std::size_t func_counter_ = 0;
 
     llvm::Value *last_value_;
 
   public:
-    Code_generator(const std::string &module_name)
-        : module_{module_name, context_}, builder_{context_} {
-        module_.setTargetTriple(llvm::sys::getProcessTriple());
-    }
-
-    void print() const {
-        module_.print(llvm::outs(), nullptr);
-    }
-
-    void compile(const std::string& ir_file, const std::string& exe_file) {
-        std::error_code EC;
-        llvm::raw_fd_ostream OS(ir_file, EC);
-        module_.print(OS, nullptr);
-
-        std::string cmd = "clang " + ir_file + " -o " + exe_file;
-        int result = std::system(cmd.c_str());
-    }
+    Code_generator(const std::string &module_name);
+    void print() const;
+    void compile(const std::string &ir_file, const std::string &exe_file);
 
     void visit(Program &node) override;
     void visit(Block_stmt &node) override;
@@ -73,7 +62,7 @@ class Code_generator final : public ASTVisitor {
     void visit(Return_stmt &node) override;
     void visit(Expr_stmt &node) override;
 
-private:
+  private:
     llvm::FunctionCallee get_func(const std::string &name);
     llvm::FunctionCallee get_printf();
     llvm::FunctionCallee get_scanf();
