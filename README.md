@@ -7,8 +7,6 @@
 
 </div>
 
-- This project presents the implementation of the `ParaCL` programming language from the C++ course by K.I. Vladimirov.
-
 ## README in other languages 
 
 1. [Russian](/README-R.md)
