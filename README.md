@@ -13,12 +13,12 @@
 2. [English](/README.md)
 
 ## Table of Contents
-Introduction:
+`Introduction:`
 - [Running the program](#running-the-program)
 - [Introduction](#introduction)
 - [Methodology](#methodology)
 
-Language usage instructions:
+`Language usage instructions:`
 - [Language capabilities description](#language-capabilities-description)
 - [Compilation error display](#compilation-error-display)
 - [Variables and numbers](#variables-and-numbers)
@@ -30,7 +30,7 @@ Language usage instructions:
 - [Logical operators](#logical-operators)
 - [Arithmetic and bitwise operators](#arithmetic-and-bitwise-operators)
 
-Frontend implementation:
+`Frontend implementation:`
 - [Lexical analyzer implementation](#lexical-analyzer-implementation)
 - [Syntax analyzer implementation](#syntax-analyzer-implementation)
 - [Designing data structures for program storage](#designing-data-structures-for-program-storage)
@@ -39,7 +39,7 @@ Frontend implementation:
 - [Scope implementation](#scope-implementation)
 - [Simulator implementation](#simulator-implementation)
 
-Additional:
+`Additional:`
 - [Using dump](#using-dump)
 - [Project structure](#project-structure)
 - [Project authors](#project-authors)
@@ -48,16 +48,20 @@ Additional:
 Repository cloning, build and compilation is performed using the following commands:
 
 ```
-git clone [https://github.com/RTCupid/Biba_Boba_Buba_Language.git](https://github.com/RTCupid/Biba_Boba_Buba_Language.git)
-cd Biba_Boba_Buba_Language
+git clone git@github.com:RTCupid/ParaCL_Compiler.git
+cd ParaCL_Compiler
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
+
+In the default build, the compiler runs in `binary generation mode`. To run the `interpreter`, add the option `-DINTERPRETER=ON`.
 
 Program execution is performed in the following format:
 ```
 ./build/frontend/frontend <program filename>
 ```
+
+The binary file is generated in the `./build/compile_out` folder.
 
 ## Introduction
 Developing a programming language is a fundamental task in computer science that allows practical investigation of computation principles. Creating a language with C-like syntax provides better understanding of compiler architecture. This process reveals the inner logic of translating high-level constructs into intermediate representations.
