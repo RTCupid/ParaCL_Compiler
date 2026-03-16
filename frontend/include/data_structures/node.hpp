@@ -134,14 +134,14 @@ class Assignment_expr final : public Expression {
 class While_stmt final : public Statement {
   private:
     Expression_ptr condition_;
-    Statement_ptr body_;
+    Expression_ptr body_;
 
   public:
-    While_stmt(Expression_ptr condition, Statement_ptr body)
+    While_stmt(Expression_ptr condition, Expression_ptr body)
         : condition_(condition), body_(body) {}
 
     Expression &get_condition() noexcept { return *condition_; }
-    Statement &get_body() noexcept { return *body_; }
+    Expression &get_body() noexcept { return *body_; }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
@@ -149,18 +149,18 @@ class While_stmt final : public Statement {
 class If_stmt final : public Statement {
   private:
     Expression_ptr condition_;
-    Statement_ptr then_branch_;
-    Statement_ptr else_branch_;
+    Expression_ptr then_branch_;
+    Expression_ptr else_branch_;
 
   public:
-    If_stmt(Expression_ptr condition, Statement_ptr then_branch,
-            Statement_ptr else_branch = nullptr)
+    If_stmt(Expression_ptr condition, Expression_ptr then_branch,
+            Expression_ptr else_branch = nullptr)
         : condition_(condition), then_branch_(then_branch),
           else_branch_(else_branch) {}
 
     Expression &get_condition() noexcept { return *condition_; }
-    Statement &then_branch() noexcept { return *then_branch_; }
-    Statement &else_branch() noexcept { return *else_branch_; }
+    Expression &then_branch() noexcept { return *then_branch_; }
+    Expression &else_branch() noexcept { return *else_branch_; }
     bool contains_else_branch() const noexcept { return else_branch_; }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }

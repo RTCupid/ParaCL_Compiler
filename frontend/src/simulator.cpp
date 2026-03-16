@@ -27,18 +27,15 @@ void Simulator::visit(If_stmt &node) {
     auto condition = evaluate_expression(node.get_condition());
 
     if (condition != 0) {
-        node.then_branch().accept(*this);
-    } else {
-        const bool contains_else_node = node.contains_else_branch();
-
-        if (contains_else_node)
-            node.else_branch().accept(*this);
+        evaluate_expression(node.then_branch());
+    } else if (node.contains_else_branch()) {
+        evaluate_expression(node.else_branch());
     }
 }
 
 void Simulator::visit(While_stmt &node) {
     while (evaluate_expression(node.get_condition())) {
-        node.get_body().accept(*this);
+        evaluate_expression(node.get_body());
     }
 }
 

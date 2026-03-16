@@ -243,36 +243,36 @@ expr_stmt       : expression TOK_SEMICOLON
                   }
                 ;
 
-if_stmt        : TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement %prec PREC_IFX
+if_stmt        : TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN block_expr
                 {
                   $$ = pool.make<language::If_stmt>($3, $5);
                 }
-               | TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement TOK_ELSE statement
+              | TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN block_expr TOK_ELSE block_expr
                 {
                   $$ = pool.make<language::If_stmt>($3, $5, $7);
                 }
-               | TOK_IF error TOK_RIGHT_PAREN statement %prec PREC_IFX
-                 {
-                   yyerrok;
-                   $$ = pool.make<language::Empty_stmt>();
-                 }
-               | TOK_IF TOK_LEFT_PAREN error statement %prec PREC_IFX
-                 {
-                   yyerrok;
-                   $$ = pool.make<language::Empty_stmt>();
-                 }
-               ;
+              | TOK_IF error TOK_RIGHT_PAREN block_expr
+                {
+                  yyerrok;
+                  $$ = pool.make<language::Empty_stmt>();
+                }
+              | TOK_IF TOK_LEFT_PAREN error block_expr
+                {
+                  yyerrok;
+                  $$ = pool.make<language::Empty_stmt>();
+                }
+              ;
 
-while_stmt     : TOK_WHILE TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement
+while_stmt     : TOK_WHILE TOK_LEFT_PAREN expression TOK_RIGHT_PAREN block_expr
                 {
                   $$ = pool.make<language::While_stmt>($3, $5);
                 }
-               | TOK_WHILE error TOK_RIGHT_PAREN statement
+               | TOK_WHILE error TOK_RIGHT_PAREN block_expr
                   {
                     yyerrok;
                     $$ = pool.make<language::Empty_stmt>();
                   }
-                | TOK_WHILE TOK_LEFT_PAREN error statement
+                | TOK_WHILE TOK_LEFT_PAREN error block_expr
                   {
                     yyerrok;
                     $$ = pool.make<language::Empty_stmt>();
