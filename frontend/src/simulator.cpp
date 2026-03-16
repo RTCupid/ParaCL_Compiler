@@ -13,7 +13,7 @@ void Simulator::visit(Program &node) {
     }
 }
 
-void Simulator::visit(Block_stmt &node) {
+void Simulator::visit(Block_expr &node) {
     const auto &statements = node.get_stmts();
 
     for (const auto &stmt : statements) {

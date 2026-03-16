@@ -12,7 +12,7 @@ class Program;
 class Statement;
 class Expression;
 class Assignment_expr;
-class Block_stmt;
+class Block_expr;
 class Empty_stmt;
 class If_stmt;
 class While_stmt;
@@ -32,7 +32,7 @@ class ASTVisitor {
     virtual ~ASTVisitor() = default;
 
     virtual void visit(Program &node) = 0;
-    virtual void visit(Block_stmt &node) = 0;
+    virtual void visit(Block_expr &node) = 0;
     virtual void visit(Empty_stmt &node) = 0;
     virtual void visit(Assignment_expr &node) = 0;
     virtual void visit(Input &node) = 0;
@@ -102,12 +102,12 @@ class Empty_stmt final : public Statement {
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
 
-class Block_stmt final : public Statement {
+class Block_expr final : public Expression {
   private:
     StmtList stmts_;
 
   public:
-    explicit Block_stmt(StmtList stmts) : stmts_(std::move(stmts)) {}
+    explicit Block_expr(StmtList stmts) : stmts_(std::move(stmts)) {}
 
     const StmtList &get_stmts() const noexcept { return stmts_; }
     StmtList &get_stmts() noexcept { return stmts_; }
@@ -191,11 +191,11 @@ class Func final : public Expression {
   private:
     std::optional<name_t_sv> func_name_;
     ParamList params_;
-    Statement_ptr body_;
+    Expression_ptr body_;
 
   public:
     Func(std::optional<name_t_sv> func_name, ParamList params,
-         Statement_ptr body)
+         Expression_ptr body)
         : func_name_(func_name), params_(std::move(params)),
           body_(std::move(body)) {}
 
@@ -207,8 +207,8 @@ class Func final : public Expression {
 
     const ParamList &get_params() const noexcept { return params_; }
 
-    Statement &get_body() noexcept { return *body_; }
-    const Statement &get_body() const noexcept { return *body_; }
+    Expression &get_body() noexcept { return *body_; }
+    const Expression &get_body() const noexcept { return *body_; }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };

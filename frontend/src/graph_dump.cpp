@@ -29,7 +29,7 @@ void Graph_dump::visit(Program &node) {
     }
 }
 
-void Graph_dump::visit(Block_stmt &node) {
+void Graph_dump::visit(Block_expr &node) {
     const auto &stmts = node.get_stmts();
     const std::size_t size = stmts.size();
 

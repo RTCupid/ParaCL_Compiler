@@ -39,7 +39,7 @@ class Code_generator final : public ASTVisitor {
     void compile(const std::string &ir_file, const std::string &exe_file);
 
     void visit(Program &node) override;
-    void visit(Block_stmt &node) override;
+    void visit(Block_expr &node) override;
 
     void visit(Empty_stmt &node) override;
 

@@ -162,9 +162,9 @@
 %type <language::Statement_ptr>              toplevel_statement
 %type <language::StmtList>                   stmt_list
 %type <language::Statement_ptr> statement
-%type <language::Statement_ptr> if_stmt while_stmt print_stmt block_stmt empty_stmt return_stmt expr_stmt
+%type <language::Statement_ptr> if_stmt while_stmt print_stmt empty_stmt return_stmt expr_stmt
 
-%type <language::Expression_ptr>             expression assignment_expr or and bitwise_op equality relational add_sub mul_div unary postfix primary function_expr input_expr
+%type <language::Expression_ptr>             expression assignment_expr or and bitwise_op equality relational add_sub mul_div unary postfix primary function_expr input_expr block_expr
 %type <language::Call::ArgExprList>          opt_arg_list arg_list
 %type <language::Func::ParamList>            opt_param_list param_list
 %type <std::optional<language::name_t_sv>>   opt_func_name
@@ -222,8 +222,6 @@ statement      :
                   { $$ = $1; }
                 | expr_stmt
                   { $$ = $1; }
-                | block_stmt
-                  { $$ = $1; }
                 | empty_stmt
                   { $$ = $1; }
                 | error TOK_SEMICOLON
@@ -244,18 +242,6 @@ expr_stmt       : expression TOK_SEMICOLON
                     $$ = pool.make<language::Expr_stmt>($1);
                   }
                 ;
-
-block_stmt     : TOK_LEFT_BRACE
-                {
-                  push_scope(my_parser, nametable_t{});
-                }
-                stmt_list
-                TOK_RIGHT_BRACE
-                {
-                  pop_scope(my_parser);
-                  $$ = pool.make<language::Block_stmt>($3);
-                }
-               ;
 
 if_stmt        : TOK_IF TOK_LEFT_PAREN expression TOK_RIGHT_PAREN statement %prec PREC_IFX
                 {
@@ -452,6 +438,10 @@ primary         : TOK_NUMBER
                   {
                     $$ = $1;
                   }
+                | block_expr 
+                  {
+                    $$ = $1;
+                  }
                 ;
 
 input_expr      : TOK_INPUT
@@ -460,6 +450,18 @@ input_expr      : TOK_INPUT
                   }
                 ;
 
+block_expr     : TOK_LEFT_BRACE
+                {
+                  push_scope(my_parser, nametable_t{});
+                }
+                stmt_list
+                TOK_RIGHT_BRACE
+                {
+                  pop_scope(my_parser);
+                  $$ = pool.make<language::Block_expr>($3);
+                }
+               ;
+
 function_expr   : TOK_FUNC
                 {
                   push_scope(my_parser, nametable_t{});
@@ -467,7 +469,7 @@ function_expr   : TOK_FUNC
                 TOK_LEFT_PAREN opt_param_list TOK_RIGHT_PAREN opt_func_name
                 TOK_LEFT_BRACE stmt_list TOK_RIGHT_BRACE
                 {
-                  auto body = pool.make<language::Block_stmt>($8);
+                  auto body = pool.make<language::Block_expr>($8);
                   $$ = pool.make<language::Func>($6, $4, body);
                   pop_scope(my_parser);
                 }
