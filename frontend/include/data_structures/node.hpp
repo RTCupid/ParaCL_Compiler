@@ -161,7 +161,9 @@ class If_stmt final : public Statement {
     Expression &get_condition() noexcept { return *condition_; }
     Expression &then_branch() noexcept { return *then_branch_; }
     Expression &else_branch() noexcept { return *else_branch_; }
-    bool contains_else_branch() const noexcept { return else_branch_ != nullptr; }
+    bool contains_else_branch() const noexcept {
+        return else_branch_ != nullptr;
+    }
 
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
 };
