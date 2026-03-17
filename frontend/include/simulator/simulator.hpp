@@ -16,7 +16,7 @@ class Simulator final : public ASTVisitor {
     nametable_t &get_nametable() noexcept { return nametable_; }
 
     void visit(Program &node) override;
-    void visit(Block_stmt &node) override;
+    void visit(Block_expr &node) override;
 
     void visit(Empty_stmt &node) override;
 

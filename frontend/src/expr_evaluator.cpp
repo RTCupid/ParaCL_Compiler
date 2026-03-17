@@ -145,7 +145,25 @@ void Expression_evaluator::visit(Input &node) {
 }
 
 void Expression_evaluator::visit(Program &node) {}
-void Expression_evaluator::visit(Block_stmt &node) {}
+void Expression_evaluator::visit(Block_expr &node) {
+    number_t last_value = 0;
+
+    for (auto *stmt : node.get_stmts()) {
+        if (!stmt) {
+            continue;
+        }
+
+        if (auto *expr_stmt = dynamic_cast<Expr_stmt *>(stmt)) {
+            Expression_evaluator eval{simulator_};
+            expr_stmt->get_expr().accept(eval);
+            last_value = eval.get_result();
+        } else {
+            stmt->accept(simulator_);
+        }
+    }
+
+    result_ = last_value;
+}
 void Expression_evaluator::visit(Empty_stmt &node) {}
 void Expression_evaluator::visit(If_stmt &node) {}
 void Expression_evaluator::visit(While_stmt &node) {}

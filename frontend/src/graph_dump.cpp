@@ -29,7 +29,7 @@ void Graph_dump::visit(Program &node) {
     }
 }
 
-void Graph_dump::visit(Block_stmt &node) {
+void Graph_dump::visit(Block_expr &node) {
     const auto &stmts = node.get_stmts();
     const std::size_t size = stmts.size();
 
@@ -109,7 +109,7 @@ void Graph_dump::visit(While_stmt &node) {
 void Graph_dump::visit(If_stmt &node) {
     auto *cond = &node.get_condition();
     auto *then_b = &node.then_branch();
-    Statement *else_b =
+    Expression *else_b =
         node.contains_else_branch() ? &node.else_branch() : nullptr;
 
     gv_ << "    node_" << &node

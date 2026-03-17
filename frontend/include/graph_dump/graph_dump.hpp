@@ -16,7 +16,7 @@ class Graph_dump final : public ASTVisitor {
         : gv_(gv), parent_(parent) {}
 
     void visit(Program &node) override;
-    void visit(Block_stmt &node) override;
+    void visit(Block_expr &node) override;
     void visit(Empty_stmt &node) override;
     void visit(Input &node) override;
     void visit(If_stmt &node) override;

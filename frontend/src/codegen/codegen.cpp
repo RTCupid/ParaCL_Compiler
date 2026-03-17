@@ -55,7 +55,7 @@ void Code_generator::visit(Program &node) {
     }
 }
 
-void Code_generator::visit(Block_stmt &node) {
+void Code_generator::visit(Block_expr &node) {
     const auto &statements = node.get_stmts();
 
     for (const auto &stmt : statements) {
