@@ -1,6 +1,7 @@
 #include "simulator/expr_evaluator.hpp"
 #include "simulator/simulator.hpp"
 #include "simulator/helpers.hpp"
+#include "scope.hpp"
 #include <iostream>
 #include <string>
 
@@ -11,26 +12,26 @@ value_t Expression_evaluator::get_result() const noexcept { return result_; }
 void Expression_evaluator::visit(Number &node) { result_ = node.get_value(); }
 
 void Expression_evaluator::visit(Variable &node) {
-    auto &nametable = simulator_.get_nametable();
     auto var_name = std::string{node.get_name()};
 
-    auto it = nametable.find(var_name);
-    if (it != nametable.end()) {
-        result_ = it->second;
-    } else {
-        throw std::runtime_error("Unknown variable: " + var_name);
+    // auto it = nametable.find(var_name);
+
+    auto res = simulator_.get_scopes().lookup(var_name);
+    if (res.empty()) {
+        throw std::runtime_error("Unknown variable: " + var_name);       
     }
+    result_ = res;
 }
 
 void Expression_evaluator::visit(Assignment_expr &node) {
-    auto &nametable = simulator_.get_nametable();
     auto var_name = std::string{node.get_variable()->get_name()};
 
     Expression_evaluator result_eval{simulator_};
     node.get_value().accept(result_eval);
     result_ = result_eval.result_;
 
-    auto &&it = nametable.find(var_name);
+    // auto &&it = nametable.find(var_name);
+    auto res = simulator_.get_scopes().
     if (it != nametable.end())
         it->second = result_;
     else
@@ -153,8 +154,42 @@ void Expression_evaluator::visit(If_stmt &node) {}
 void Expression_evaluator::visit(While_stmt &node) {}
 void Expression_evaluator::visit(Print_stmt &node) {}
 
-void Expression_evaluator::visit(Call &) {}
-void Expression_evaluator::visit(Func &) {}
+void Expression_evaluator::visit(Call &node) {
+    Expression_evaluator target_eval{simulator_};
+    node.get_target().accept(target_eval);
+    auto target_result = target_eval.result_;
+    auto fn = expect_function(target_result, "Call");
+
+    if (fn->get_params().size() != node.get_args().size()) {
+        throw std::runtime_error("Too few arguments in function call");
+    }
+
+    std::vector<value_t> arg_values;
+    arg_values.reserve(node.get_args().size());
+    for (auto&& arg : node.get_args()) {
+        Expression_evaluator arg_eval{simulator_};
+        arg->accept(arg_eval);
+        arg_values.push_back(arg_eval.get_result());
+    }
+
+    for (size_t i = 0; i != fn->get_params().size(); ++i) {
+        const auto& param_name = std::string(fn->get_params()[i]);
+        simulator_.get_nametable()[param_name] = arg_values[i];
+        // std::cerr << param_name << " = " << std::get<number_t>(arg_values[i]) << "\n";
+    }
+
+    fn->get_body().accept(simulator_);
+
+    if (simulator_.has_return_value()) {
+        result_ = simulator_.take_return_value();
+        // std::cerr << "res = " << std::get<number_t>(result_);
+    } else {
+        result_ = number_t{};
+    }
+}
+void Expression_evaluator::visit(Func &node) {
+    result_ = &node;
+}
 void Expression_evaluator::visit(Return_stmt &) {}
 void Expression_evaluator::visit(Expr_stmt &) {}
 

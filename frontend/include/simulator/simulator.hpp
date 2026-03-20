@@ -1,6 +1,7 @@
 #ifndef FRONTEND_INCLUDE_SIMULATOR_HPP
 #define FRONTEND_INCLUDE_SIMULATOR_HPP
 
+#include "parser/scope.hpp"
 #include "node.hpp"
 #include <string>
 #include <unordered_map>
@@ -11,6 +12,8 @@ class Simulator final : public ASTVisitor {
 
     using nametable_t = std::unordered_map<std::string, value_t>;
     nametable_t nametable_;
+
+    Scope scopes_;
 
   public:
     nametable_t &get_nametable() noexcept { return nametable_; }
@@ -39,8 +42,24 @@ class Simulator final : public ASTVisitor {
     void visit(Return_stmt &node) override;
     void visit(Expr_stmt &node) override;
 
+    bool has_return_value() const noexcept {
+      return return_value_.has_value();
+    }
+
+    value_t take_return_value() {
+      value_t return_value = *return_value_;
+      return_value_.reset();
+      return return_value;
+    }
+
+    Scope& get_scopes() noexcept {
+      return scopes_;
+    }
+
   private:
     value_t evaluate_expression(Expression &expression);
+    std::optional<value_t> last_expr_value_;
+    std::optional<value_t> return_value_;
 };
 
 } // namespace language

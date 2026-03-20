@@ -7,19 +7,30 @@
 namespace language {
 
 void Simulator::visit(Program &node) {
+    scopes_.push();
+
     const auto &statements = node.get_stmts();
 
     for (const auto &stmt : statements) {
         stmt->accept(*this);
+        if (return_value_.has_value()) {
+            break;
+        }
     }
 }
 
 void Simulator::visit(Block_stmt &node) {
-    const auto &statements = node.get_stmts();
+    scopes_.push();
 
+    const auto &statements = node.get_stmts();
     for (const auto &stmt : statements) {
         stmt->accept(*this);
+        if (return_value_.has_value()) {
+            break;
+        }
     }
+
+    scopes_.pop();
 }
 
 void Simulator::visit(Empty_stmt &node) {};
@@ -40,6 +51,9 @@ void Simulator::visit(If_stmt &node) {
 void Simulator::visit(While_stmt &node) {
     while (expect_number(evaluate_expression(node.get_condition()), "While")) {
         node.get_body().accept(*this);
+        if (return_value_.has_value()) {
+            break;
+        }
     }
 }
 
@@ -57,9 +71,9 @@ void Simulator::visit(Variable &node) {}
 
 void Simulator::visit(Func &node) {}
 void Simulator::visit(Call &node) {}
-void Simulator::visit(Return_stmt &node) {}
+void Simulator::visit(Return_stmt &node) { return_value_ = evaluate_expression(node.get_value()); }
 
-void Simulator::visit(Expr_stmt &node) { evaluate_expression(node.get_expr()); }
+void Simulator::visit(Expr_stmt &node) { last_expr_value_ = evaluate_expression(node.get_expr()); }
 
 value_t Simulator::evaluate_expression(Expression &expression) {
     Expression_evaluator evaluator(*this);

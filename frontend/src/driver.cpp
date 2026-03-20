@@ -37,7 +37,7 @@ void driver(int argc, const char **argv) {
     if (result != 0) {
         throw std::runtime_error("unknown error\n");
     }
-
+#define GRAPH_DUMP // FIXME
 #ifdef GRAPH_DUMP
     // ____________GRAPH DUMP___________ //
     const auto paths = language::make_dump_paths();
@@ -52,6 +52,7 @@ void driver(int argc, const char **argv) {
     language::graph_dump(gv, *root);
 #endif
 
+#define INTERPRET // FIXME
 #ifdef INTERPRET
     language::Simulator simulator{};
     root->accept(simulator);
