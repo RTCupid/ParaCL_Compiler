@@ -16,7 +16,7 @@ class Error_collector final {
     struct Error_info {
         const std::string program_file_;
         const yy::location loc_;
-        const std::string_view msg_;
+        const std::string msg_;
         const std::string line_with_error_;
 
         Error_info(const std::string program_file, const yy::location &loc,
