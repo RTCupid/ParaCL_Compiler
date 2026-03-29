@@ -13,12 +13,12 @@
 2. [English](/README.md)
 
 ## Table of Contents
-`Introduction:`
+Introduction:
 - [Running the program](#running-the-program)
 - [Introduction](#introduction)
 - [Methodology](#methodology)
 
-`Language usage instructions:`
+Language usage instructions:
 - [Language capabilities description](#language-capabilities-description)
 - [Compilation error display](#compilation-error-display)
 - [Variables and numbers](#variables-and-numbers)
@@ -30,7 +30,7 @@
 - [Logical operators](#logical-operators)
 - [Arithmetic and bitwise operators](#arithmetic-and-bitwise-operators)
 
-`Frontend implementation:`
+Frontend implementation:
 - [Lexical analyzer implementation](#lexical-analyzer-implementation)
 - [Syntax analyzer implementation](#syntax-analyzer-implementation)
 - [Designing data structures for program storage](#designing-data-structures-for-program-storage)
@@ -40,7 +40,7 @@
 - [Simulator implementation](#simulator-implementation)
 - [LLVM IR generator implementation](#llvm-ir-generator-implementation)
 
-`Additional:`
+Additional:
 - [Using dump](#using-dump)
 - [Project structure](#project-structure)
 - [Project authors](#project-authors)
@@ -62,7 +62,7 @@ Program execution is performed in the following format:
 ./build/frontend/frontend <program filename>
 ```
 
-The binary file is generated in the `./build/compile_out` folder.
+Output files are generated in the current directory with names `a.out` and `a.ll` in default. To set the output file name, use the `-o` option.
 
 ## Introduction
 Developing a programming language is a fundamental task in computer science that allows practical investigation of computation principles. Creating a language with C-like syntax provides better understanding of compiler architecture. This process reveals the inner logic of translating high-level constructs into intermediate representations.
