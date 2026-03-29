@@ -12,7 +12,8 @@
 #include <utility>
 
 void driver(int argc, const char **argv) {
-    auto [opt_output_name, input_file] = language::parse_commandline_arguments(argc, argv);
+    auto [opt_output_name, input_file] =
+        language::parse_commandline_arguments(argc, argv);
 
     std::ifstream program_file(input_file);
     if (!program_file)
@@ -49,7 +50,8 @@ void driver(int argc, const char **argv) {
     root->accept(simulator);
 #else
     const std::string module_name = input_file;
-    language::Compile_paths compile_paths = language::make_compile_paths(opt_output_name);
+    language::Compile_paths compile_paths =
+        language::make_compile_paths(opt_output_name);
 
     const std::string ir_file = compile_paths.ll.string();
     const std::string exe_file = compile_paths.exe.string();

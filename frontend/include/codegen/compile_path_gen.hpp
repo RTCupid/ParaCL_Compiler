@@ -1,10 +1,10 @@
 #ifndef IR_PATH_GEN_HPP
 #define IR_PATH_GEN_HPP
 
-#include <filesystem>
-#include <string>
 #include <cstring>
+#include <filesystem>
 #include <optional>
+#include <string>
 #include <utility>
 
 namespace language {
@@ -15,12 +15,12 @@ struct Compile_paths {
 };
 
 inline std::pair<std::optional<std::string>, const char *>
-    parse_commandline_arguments(int argc, const char **argv) {
-    const char* input_file = nullptr;
+parse_commandline_arguments(int argc, const char **argv) {
+    const char *input_file = nullptr;
     std::optional<std::string> opt_output_name;
 
     for (int i = 1; i < argc; ++i) {
-        const char* arg = argv[i];
+        const char *arg = argv[i];
         if (strcmp(arg, "-o") == 0) {
             if (i + 1 >= argc)
                 throw std::runtime_error("Option -o requires an argument");
@@ -56,7 +56,8 @@ inline Compile_paths
 make_compile_paths(std::optional<std::string> opt_output_name) {
     language::Compile_paths compile_paths;
     if (opt_output_name.has_value()) {
-        std::filesystem::path out_exe = std::filesystem::path(opt_output_name.value());
+        std::filesystem::path out_exe =
+            std::filesystem::path(opt_output_name.value());
         std::filesystem::path out_ll = out_exe;
         out_ll.replace_extension(".ll");
 
