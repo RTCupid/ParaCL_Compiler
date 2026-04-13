@@ -1,6 +1,6 @@
 <div align="center">
 
-# Реализация языка программирования "Biba-Boba-Buba language" на C++
+# Реализация компилятора языка программирования ParaCL на C++
   ![C++](https://img.shields.io/badge/C++-23-blue?style=for-the-badge&logo=cplusplus)
   ![CMake](https://img.shields.io/badge/CMake-3.20+-green?style=for-the-badge&logo=cmake)
   ![Testing](https://img.shields.io/badge/Google_Test-Framework-red?style=for-the-badge&logo=google)
@@ -40,6 +40,7 @@
 - [Реализация сборщика ошибок](#реализация-сборщика-ошибок)
 - [Реализация областей видимости](#реализация-областей-видимости)
 - [Реализация симулятора](#реализация-симулятора)
+- [Реализация генератора LLVM IR](#реализация-генератора-llvm-ir)
 
 Дополнительно:
 - [Использование dump](#использование-dump)
@@ -55,6 +56,8 @@ cd Biba_Boba_Buba_Language
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
+
+По умолчанию компилятор собирается в режиме `генерации бинарного кода`. Для сборки интерпретатора добавьте опцию `-DINTERPRETER=ON`.
 
 Запуск программы производится в следующем формате:
 ```
@@ -799,6 +802,35 @@ number_t Simulator::evaluate_expression(Expression &expression) {
 
 `ExpressionEvaluator` специализируется только на вычислении выражений, содержит поле `result_` для сохранения результата выражения, а также `simulator_` - 
 ссылку на симулятор, из которого он был вызван, чтобы иметь доступ к таблице имён.
+
+## Реализация генератора LLVM IR
+Генератор `LLVM IR` для `ParaCL` использует паттерн `Visitor` для обхода `AST` и генерации промежуточного представления `LLVM`. Класс `Code_generator` наследуется от `ASTVisitor` и реализует методы `visit` для каждого типа узла синтаксического дерева.
+
+<details> <summary>Класс генератора LLVM IR</summary>
+
+```c++
+class Code_generator final : public ASTVisitor {
+  private:
+    llvm::LLVMContext context_;
+    llvm::Module module_;
+    llvm::IRBuilder<> builder_;
+
+    Scope_stack scope_stack_;
+    llvm::Function *current_function_ = nullptr;
+    functions_table_t functions_;
+    std::size_t func_counter_ = 0;
+
+    llvm::Value *last_value_;
+  public:
+    Code_generator(const std::string &module_name);
+    void print() const;
+    void compile(const std::string &ir_file, const std::string &exe_file);
+
+    void visit(Program &node) override;
+    // прочие методы visit
+```
+
+</details>
 
 ## Использование dump
 Для включения опции графического дампа дерева нужно выставить флаг -GRAPH_DUMP, который по умолчанию отключен
