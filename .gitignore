@@ -6,3 +6,6 @@ dump
 compile_out
 grammar.txt
 tmp
+termination_check.log
+a.ll
+a.out
