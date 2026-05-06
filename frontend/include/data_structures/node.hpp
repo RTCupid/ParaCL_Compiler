@@ -7,6 +7,10 @@
 
 namespace language {
 
+#define LANGUAGE_AST_ACCEPT \
+    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+
+
 class Node;
 class Program;
 class Statement;
@@ -94,12 +98,12 @@ class Program final : public Node {
     const StmtList &get_stmts() const noexcept { return stmts_; }
     StmtList &get_stmts() noexcept { return stmts_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Empty_stmt final : public Statement {
   public:
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Block_expr final : public Expression {
@@ -112,7 +116,7 @@ class Block_expr final : public Expression {
     const StmtList &get_stmts() const noexcept { return stmts_; }
     StmtList &get_stmts() noexcept { return stmts_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Assignment_expr final : public Expression {
@@ -128,7 +132,7 @@ class Assignment_expr final : public Expression {
     Expression &get_value() noexcept { return *value_; }
     const Expression &get_value() const noexcept { return *value_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class While_stmt final : public Statement {
@@ -143,7 +147,7 @@ class While_stmt final : public Statement {
     Expression &get_condition() noexcept { return *condition_; }
     Expression &get_body() noexcept { return *body_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class If_stmt final : public Statement {
@@ -165,12 +169,12 @@ class If_stmt final : public Statement {
         return else_branch_ != nullptr;
     }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Input final : public Expression {
   public:
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Print_stmt final : public Statement {
@@ -183,7 +187,7 @@ class Print_stmt final : public Statement {
     Expression &get_value() noexcept { return *value_; }
     const Expression &get_value() const noexcept { return *value_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Func final : public Expression {
@@ -212,7 +216,7 @@ class Func final : public Expression {
     Expression &get_body() noexcept { return *body_; }
     const Expression &get_body() const noexcept { return *body_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Call final : public Expression {
@@ -248,7 +252,7 @@ class Return_stmt final : public Statement {
     Expression &get_value() noexcept { return *value_; }
     const Expression &get_value() const noexcept { return *value_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Expr_stmt final : public Statement {
@@ -261,7 +265,7 @@ class Expr_stmt final : public Statement {
     Expression &get_expr() noexcept { return *expr_; }
     const Expression &get_expr() const noexcept { return *expr_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Binary_operator final : public Expression {
@@ -281,7 +285,7 @@ class Binary_operator final : public Expression {
     Expression &get_right() noexcept { return *right_; }
     const Expression &get_right() const noexcept { return *right_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Unary_operator final : public Expression {
@@ -297,7 +301,7 @@ class Unary_operator final : public Expression {
     Expression &get_operand() noexcept { return *operand_; }
     const Expression &get_operand() const noexcept { return *operand_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Number final : public Expression {
@@ -309,7 +313,7 @@ class Number final : public Expression {
     number_t &get_value() noexcept { return number_; }
     const number_t &get_value() const noexcept { return number_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
 
 class Variable final : public Expression {
@@ -321,8 +325,10 @@ class Variable final : public Expression {
 
     name_t_sv get_name() const noexcept { return var_name_; }
 
-    void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
+    LANGUAGE_AST_ACCEPT
 };
+
+#undef LANGUAGE_AST_ACCEPT
 
 } // namespace language
 

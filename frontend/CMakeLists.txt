@@ -61,7 +61,9 @@ add_executable(frontend
     ${FLEX_Lexer_OUTPUTS}
     ${BISON_Parser_OUTPUTS}
 )
+
 option(GRAPH_DUMP "Enable Graphviz dump" OFF)
+option(INTERPRET "Enable intetpret mode" OFF)
 
 if (GRAPH_DUMP)
     target_compile_definitions(frontend PRIVATE GRAPH_DUMP)
