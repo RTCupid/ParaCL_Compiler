@@ -9,26 +9,27 @@
 #include <llvm/Passes/PassBuilder.h>
 
 namespace language {
-    
+
 struct Options {
     std::string output_name_;
     llvm::OptimizationLevel optimization_level_;
 };
 
 class Option_parser final {
-private:
+  private:
     const int argc_;
-    const char** argv_;
+    const char **argv_;
 
     Options options;
 
-public:
-    Option_parser(const int argc, const char** argv) : argc_(argc), argv_(argv) {} 
+  public:
+    Option_parser(const int argc, const char **argv)
+        : argc_(argc), argv_(argv) {}
     Options parse_options();
 
-private:
-    llvm::OptimizationLevel parse_optimization_level(const char* parse_string);
-    std::string parse_output_name(const char* parse_string);
+  private:
+    llvm::OptimizationLevel parse_optimization_level(const char *parse_string);
+    std::string parse_output_name(const char *parse_string);
 };
 
 } // namespace language
