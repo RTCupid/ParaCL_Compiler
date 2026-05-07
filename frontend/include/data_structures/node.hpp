@@ -7,9 +7,8 @@
 
 namespace language {
 
-#define LANGUAGE_AST_ACCEPT \
+#define LANGUAGE_AST_ACCEPT                                                    \
     void accept(ASTVisitor &visitor) override { visitor.visit(*this); }
-
 
 class Node;
 class Program;

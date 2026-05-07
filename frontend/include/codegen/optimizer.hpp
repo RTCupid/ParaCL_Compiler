@@ -11,9 +11,10 @@
 namespace language {
 
 class Optimizer final {
-public:
-    static void optimize(llvm::Module &module,
-                         llvm::OptimizationLevel level = llvm::OptimizationLevel::O2) {
+  public:
+    static void
+    optimize(llvm::Module &module,
+             llvm::OptimizationLevel level = llvm::OptimizationLevel::O2) {
         llvm::LoopAnalysisManager lam;
         llvm::FunctionAnalysisManager fam;
         llvm::CGSCCAnalysisManager cgam;
