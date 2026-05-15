@@ -28,7 +28,8 @@ Options Option_parser::parse_options() {
         if (arg == "--") {
             for (++i; i < argc_; ++i) {
                 if (!options_.input_file_.empty())
-                    throw std::runtime_error("Multiple input files not supported");
+                    throw std::runtime_error(
+                        "Multiple input files not supported");
                 options_.input_file_ = argv_[i];
             }
             break;
@@ -41,8 +42,8 @@ Options Option_parser::parse_options() {
         }
 
         if (arg.starts_with("--output=")) {
-            options_.output_name_ =
-                parse_output_name(argv_[i] + std::string_view{"--output="}.size());
+            options_.output_name_ = parse_output_name(
+                argv_[i] + std::string_view{"--output="}.size());
             continue;
         }
 
@@ -58,7 +59,8 @@ Options Option_parser::parse_options() {
         }
 
         if (arg.starts_with("-O") && arg.size() > 2) {
-            options_.optimization_level_ = parse_optimization_level(argv_[i] + 2);
+            options_.optimization_level_ =
+                parse_optimization_level(argv_[i] + 2);
             continue;
         }
 

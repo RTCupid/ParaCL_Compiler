@@ -1,8 +1,8 @@
 #ifndef INCLUDE_OPTION_PARSER_HPP
 #define INCLUDE_OPTION_PARSER_HPP
 
-#include <optional>
 #include <llvm/Passes/OptimizationLevel.h>
+#include <optional>
 #include <string>
 
 namespace language {
