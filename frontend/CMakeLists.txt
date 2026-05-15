@@ -14,7 +14,17 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "LLVM definitions: ${LLVM_DEFINITIONS}")
 
-set(LLVM_REQUIRED_COMPONENTS core support)
+set(LLVM_REQUIRED_COMPONENTS
+    core
+    support
+    analysis
+    instcombine
+    ipo
+    passes
+    scalaropts
+    transformutils
+    vectorize
+)
 llvm_map_components_to_libnames(LLVM_LIBS ${LLVM_REQUIRED_COMPONENTS})
 
 message(STATUS "LLVM mapped libs: ${LLVM_LIBS}")
@@ -57,6 +67,7 @@ add_executable(frontend
     src/expr_evaluator.cpp
     src/simulator.cpp
     src/graph_dump.cpp
+    src/parse_options.cpp
     src/codegen/codegen.cpp
     ${FLEX_Lexer_OUTPUTS}
     ${BISON_Parser_OUTPUTS}

@@ -1,18 +1,16 @@
 #ifndef INCLUDE_OPTION_PARSER_HPP
 #define INCLUDE_OPTION_PARSER_HPP
 
-#include <llvm/Analysis/CGSCCPassManager.h>
-#include <llvm/Analysis/LoopAnalysisManager.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/PassManager.h>
+#include <optional>
 #include <llvm/Passes/OptimizationLevel.h>
-#include <llvm/Passes/PassBuilder.h>
+#include <string>
 
 namespace language {
 
 struct Options {
-    std::string output_name_;
-    llvm::OptimizationLevel optimization_level_;
+    std::string input_file_;
+    std::optional<std::string> output_name_;
+    llvm::OptimizationLevel optimization_level_ = llvm::OptimizationLevel::O2;
 };
 
 class Option_parser final {
@@ -20,7 +18,7 @@ class Option_parser final {
     const int argc_;
     const char **argv_;
 
-    Options options;
+    Options options_;
 
   public:
     Option_parser(const int argc, const char **argv)

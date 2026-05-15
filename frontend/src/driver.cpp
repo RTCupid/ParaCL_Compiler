@@ -6,14 +6,16 @@
 #include "lexer.hpp"
 #include "my_parser.hpp"
 #include "node.hpp"
+#include "parse_options/option_parser.hpp"
 #include "parser.hpp"
 #include "simulator/simulator.hpp"
 #include <iostream>
 #include <utility>
 
 void driver(int argc, const char **argv) {
-    auto [opt_output_name, input_file] =
-        language::parse_commandline_arguments(argc, argv);
+    language::Option_parser option_parser{argc, argv};
+    const language::Options options = option_parser.parse_options();
+    const std::string &input_file = options.input_file_;
 
     std::ifstream program_file(input_file);
     if (!program_file)
@@ -51,13 +53,13 @@ void driver(int argc, const char **argv) {
 #else
     const std::string module_name = input_file;
     language::Compile_paths compile_paths =
-        language::make_compile_paths(opt_output_name);
+        language::make_compile_paths(options.output_name_);
 
     const std::string ir_file = compile_paths.ll.string();
     const std::string exe_file = compile_paths.exe.string();
 
     language::Code_generator generator{input_file};
     root->accept(generator);
-    generator.compile(ir_file, exe_file);
+    generator.compile(ir_file, exe_file, options.optimization_level_);
 #endif
 }
