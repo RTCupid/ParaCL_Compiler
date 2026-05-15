@@ -1,6 +1,7 @@
 // Butterworth low-pass filter bandwidth estimate.
 // Units:
-//   resistance_ohm  - Ohm
+//   resistance_ohm  - Ohm 
+//   resistance_ohm  - Ohm 
 //   capacitance_nf  - nF
 //   result          - Hz
 
