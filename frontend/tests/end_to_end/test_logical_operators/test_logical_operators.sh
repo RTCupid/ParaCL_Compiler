@@ -7,7 +7,7 @@ out=$("$PROGRAM" "$TEST_PATH")
 
 norm=$(printf "%s" "$out" | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//')
 
-if [ "$norm" = "1 0 1" ]; then
+if [ "$norm" = "1 0 1 1 1 1 1 1 1" ]; then
   echo "test_logical_operatorsr success"
   exit 0
 else

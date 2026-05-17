@@ -202,7 +202,8 @@ void Code_generator::visit(Unary_operator &node) {
         break;
     }
     case Unary_operators::Not: {
-        auto not_bool = builder_.CreateICmpEQ(value, 0, "eqtmp");
+        auto null_value = llvm::ConstantInt::get(value->getType(), 0);
+        auto not_bool = builder_.CreateICmpEQ(value, null_value, "eqtmp");
         last_value_ = builder_.CreateZExt(
             not_bool, llvm::Type::getInt32Ty(context_), "unarynotzext");
         break;
