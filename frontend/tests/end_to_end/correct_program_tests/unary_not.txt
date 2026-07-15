@@ -1,0 +1,8 @@
+print !10;
+print !0;
+a = 10;
+print !a;
+a = 0;
+print !a;
+print !(1+1);
+print !(22 - 22);
