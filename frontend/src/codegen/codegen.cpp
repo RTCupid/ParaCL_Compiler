@@ -1,4 +1,5 @@
 #include "codegen/codegen.hpp"
+#include "codegen/optimizer.hpp"
 #include "node.hpp"
 #include <iostream>
 #include <llvm/ADT/ArrayRef.h>
@@ -22,7 +23,10 @@ Code_generator::Code_generator(const std::string &module_name)
 void Code_generator::print() const { module_.print(llvm::outs(), nullptr); }
 
 void Code_generator::compile(const std::string &ir_file,
-                             const std::string &exe_file) {
+                             const std::string &exe_file,
+                             llvm::OptimizationLevel optimization_level) {
+    Optimizer::optimize(module_, optimization_level);
+
     std::error_code EC;
     llvm::raw_fd_ostream OS(ir_file, EC);
     module_.print(OS, nullptr);

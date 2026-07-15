@@ -1,6 +1,7 @@
 .vscode
 .cache
 build
+build_i
 frontend/build
 dump
 compile_out

@@ -14,6 +14,7 @@
 #include "llvm/IR/Value.h"
 #include <cstddef>
 #include <llvm/IR/Instructions.h>
+#include <llvm/Passes/OptimizationLevel.h>
 #include <llvm/TargetParser/Host.h>
 
 namespace language {
@@ -36,7 +37,9 @@ class Code_generator final : public ASTVisitor {
   public:
     Code_generator(const std::string &module_name);
     void print() const;
-    void compile(const std::string &ir_file, const std::string &exe_file);
+    void compile(const std::string &ir_file, const std::string &exe_file,
+                 llvm::OptimizationLevel optimization_level =
+                     llvm::OptimizationLevel::O2);
 
     void visit(Program &node) override;
     void visit(Block_expr &node) override;

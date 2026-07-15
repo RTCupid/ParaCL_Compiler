@@ -1,0 +1,34 @@
+// Butterworth low-pass filter bandwidth estimate.
+// Units:
+//   resistance_ohm  - Ohm 
+//   capacitance_nf  - nF
+//   result          - Hz
+
+butterworth_bandwidth_hz = func(resistance_ohm, capacitance_nf, filter_order) {
+    if (filter_order <= 0) {
+        return 0;
+    }
+
+    two_pi_milli = 6284;
+    hertz_scale = 1000000000;
+
+    denominator = (two_pi_milli * resistance_ohm * capacitance_nf) / 1000;
+
+    if (denominator <= 0) {
+        return 0;
+    }
+
+    return hertz_scale / denominator;
+};
+
+known_resistance_ohm = 10000;
+known_capacitance_nf = 10;
+known_filter_order = 4;
+
+bandwidth_hz = butterworth_bandwidth_hz(
+    known_resistance_ohm,
+    known_capacitance_nf,
+    known_filter_order
+);
+
+print bandwidth_hz;
